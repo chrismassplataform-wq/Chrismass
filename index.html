@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas - Plataforma Navideña</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    
+    <style>
+        :root {
+            --color-naranja: #FF8C42;
+            --color-naranja-claro: #FFB88C;
+            --color-verde: #8FBC8F;
+            --color-verde-claro: #C1E1C1;
+            --color-rojo-navidad: #D80032;
+            --color-rojo-oscuro: #A30024;
+            --color-verde-navidad: #2E8B57;
+            --color-verde-oscuro: #1F6140;
+            --color-oro: #FFD700;
+            --color-azul: #1E90FF;
+            --color-blanco: #FFFFFF;
+            --color-gris: #F5F5F5;
+            --color-texto: #333333;
+            --sombra: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--color-texto);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: var(--sombra);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .form-container {
+            padding: 40px;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .login-container {
+            transform: translateX(0);
+        }
+
+        .register-container {
+            transform: translateX(100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding-bottom: 40px;
+            overflow-y: auto;
+        }
+
+        .container.active .login-container {
+            transform: translateX(-100%);
+        }
+
+        .container.active .register-container {
+            transform: translateX(0);
+        }
+
+        h1 {
+            color: var(--color-rojo-navidad);
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--color-oro), transparent);
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        input:focus {
+            border-color: var(--color-naranja);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.2);
+            background-color: white;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, var(--color-naranja), var(--color-rojo-navidad));
+            color: white;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--color-verde), var(--color-verde-navidad));
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-rojo-navidad), var(--color-naranja));
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--color-verde-navidad), var(--color-verde));
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+        }
+
+        .btn-tertiary {
+            background: linear-gradient(135deg, var(--color-azul), #4A90E2);
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--color-oro), #FFA500);
+            color: #333;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(-2px);
+        }
+
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+
+        /* CORRECCIÓN DEFINITIVA: Enlace siempre visible */
+        .toggle-text {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #666;
+            position: relative;
+            z-index: 100;
+            padding: 20px 15px;
+            border-top: 2px solid #eee;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: block;
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .toggle-link {
+            color: var(--color-naranja);
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: 2px solid var(--color-naranja);
+            border-radius: 8px;
+            background-color: rgba(255, 140, 66, 0.1);
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .toggle-link:hover {
+            text-decoration: none;
+            color: var(--color-rojo-navidad);
+            background-color: rgba(255, 140, 66, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+
+        .success {
+            background-color: var(--color-verde-claro);
+            color: #2d5016;
+            border-left: 4px solid var(--color-verde-navidad);
+        }
+
+        .error {
+            background-color: #ffcccc;
+            color: #990000;
+            border-left: 4px solid var(--color-rojo-navidad);
+        }
+
+        /* Estilos para pantallas internas */
+        .screen {
+            display: none;
+            padding: 25px;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 66, 0.1));
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .logo h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--color-rojo-navidad), var(--color-naranja));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo p {
+            color: #777;
+            margin-bottom: 0;
+            font-style: italic;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, var(--color-rojo-navidad), var(--color-naranja));
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .balance-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .balance-card::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .balance-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .balance-card .amount {
+            font-size: 2.2rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .balance-card.green {
+            background: linear-gradient(135deg, var(--color-verde-navidad), var(--color-verde));
+        }
+
+        .animation-container {
+            height: 150px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(245, 245, 245, 0.8));
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .snowflake {
+            position: absolute;
+            color: var(--color-verde-navidad);
+            font-size: 1.5rem;
+            animation: fall linear infinite;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(150px) rotate(360deg);
+            }
+        }
+
+        .gift {
+            font-size: 3rem;
+            animation: bounce 2s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-20px); }
+        }
+
+        .countdown {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 66, 0.1));
+            border-radius: 15px;
+            border: 2px dashed var(--color-naranja);
+        }
+
+        .countdown-timer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--color-rojo-navidad);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .wallet-address, .referral-code {
+            background-color: rgba(245, 245, 245, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            font-family: monospace;
+            position: relative;
+            border: 1px solid #ddd;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: linear-gradient(135deg, var(--color-naranja), var(--color-rojo-navidad));
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .referrals-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .referral-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+
+        .referral-item:hover {
+            background-color: rgba(255, 140, 66, 0.1);
+        }
+
+        .referral-item:last-child {
+            border-bottom: none;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, var(--color-verde-navidad), var(--color-verde));
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 140, 66, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 140, 66, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 140, 66, 0); }
+        }
+
+        .quantifying-animation {
+            font-size: 1.5rem;
+            color: var(--color-oro);
+            margin: 10px 0;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, var(--color-verde-navidad), var(--color-verde));
+            color: white;
+            border-radius: 10px;
+            box-shadow: var(--sombra);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* NUEVOS ESTILOS PARA ADMIN */
+        .admin-access {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10000;
+        }
+
+        .admin-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
+        /* CORRECCIÓN: Panel Admin a pantalla completa */
+        .admin-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            padding: 20px;
+            width: 95vw;
+            height: 95vh;
+            max-width: none;
+            max-height: none;
+            overflow-y: auto;
+            box-shadow: var(--sombra);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--color-naranja);
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab {
+            padding: 10px 20px;
+            background: var(--color-gris);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .admin-tab.active {
+            background: var(--color-naranja);
+            color: white;
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--color-verde-navidad), var(--color-verde));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background: var(--color-naranja);
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: rgba(255, 140, 66, 0.1);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 2px;
+        }
+
+        .btn-success {
+            background: var(--color-verde-navidad);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--color-rojo-navidad);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--color-oro);
+            color: #333;
+        }
+
+        .status-pending {
+            color: #FFA500;
+            font-weight: bold;
+        }
+
+        .status-approved {
+            color: var(--color-verde-navidad);
+            font-weight: bold;
+        }
+
+        .status-rejected {
+            color: var(--color-rojo-navidad);
+            font-weight: bold;
+        }
+
+        /* NUEVO: Botón de cerrar sesión */
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .user-info {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 140, 66, 0.1);
+            border-radius: 10px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Notificación -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i> <span id="notificationText">Operación exitosa</span>
+    </div>
+
+    <!-- Botón de acceso admin (oculto inicialmente) -->
+    <div class="admin-access" id="adminAccessContainer" style="display: none;">
+        <button class="admin-btn" id="adminAccessBtn" title="Acceso Admin">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+
+    <!-- Contenedor de autenticación -->
+    <div class="container active" id="authContainer">
+        <!-- Formulario de Registro -->
+        <div class="form-container register-container">
+            <div class="logo">
+                <h1>Christmas</h1>
+                <p>Únete a la magia navideña</p>
+            </div>
+            
+            <div id="registerMessage" class="message"></div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerEmail"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword"><i class="fas fa-lock"></i> Contraseña</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="referralCode"><i class="fas fa-gift"></i> Código de Referencia (opcional)</label>
+                    <input type="text" id="referralCode">
+                </div>
+                <button type="submit" class="btn btn-register"><i class="fas fa-user-plus"></i> Registrarse</button>
+            </form>
+            
+            <!-- CORREGIDO: Enlace MUY visible -->
+            <div class="toggle-text">
+                ¿Ya tienes una cuenta? <span class="toggle-link" id="showLogin">Inicia Sesión</span>
+            </div>
+        </div>
+
+        <!-- Formulario de Login -->
+        <div class="form-container login-container">
+            <div class="logo">
+                <h1>Christmas</h1>
+                <p>Tu plataforma navideña de inversiones</p>
+            </div>
+            
+            <div id="loginMessage" class="message"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword"><i class="fas fa-lock"></i> Contraseña</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-login"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
+            </form>
+            
+            <div class="toggle-text">
+                ¿No tienes una cuenta? <span class="toggle-link" id="showRegister">Regístrate</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Principal -->
+    <div class="container screen" id="mainScreen">
+        <div class="logo">
+            <h1>Christmas</h1>
+            <p>¡Felices inversiones navideñas!</p>
+        </div>
+
+        <!-- Información del usuario -->
+        <div class="user-info">
+            <i class="fas fa-user"></i> Conectado como: <span id="userEmail">usuario@ejemplo.com</span>
+        </div>
+        
+        <div class="balance-card">
+            <h2><i class="fas fa-wallet"></i> Saldo Disponible</h2>
+            <div class="amount" id="availableBalance">$0.00 USDT</div>
+        </div>
+        
+        <div class="balance-card green">
+            <h2><i class="fas fa-chart-line"></i> Saldo en Cuantificación</h2>
+            <div class="amount" id="quantifyingBalance">$0.00 USDT</div>
+            <div class="progress-bar">
+                <div class="progress" id="quantifyProgress"></div>
+            </div>
+            <div id="quantifyStatus">No hay cuantificación activa</div>
+        </div>
+        
+        <div class="animation-container">
+            <div class="gift">🎁</div>
+            <!-- Animación de nieve se generará con JS -->
+        </div>
+        
+        <button class="btn btn-primary" id="rechargeBtn"><i class="fas fa-plus-circle"></i> Recargar</button>
+        <button class="btn btn-secondary" id="withdrawBtn"><i class="fas fa-money-bill-wave"></i> Retirar</button>
+        <button class="btn btn-tertiary" id="referralsBtn"><i class="fas fa-users"></i> Referidos</button>
+        <button class="btn btn-gold pulse" id="quantifyBtn"><i class="fas fa-magic"></i> Cuantificación</button>
+        
+        <!-- NUEVO: Botón de cerrar sesión -->
+        <button class="btn logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+    </div>
+
+    <!-- Pantalla de Recarga -->
+    <div class="container screen" id="rechargeScreen">
+        <div class="logo">
+            <h1>Recargar Saldo</h1>
+            <p>Aumenta tu magia navideña</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="rechargeAmount"><i class="fas fa-dollar-sign"></i> Monto a Recargar (Mínimo 10 USDT)</label>
+            <input type="number" id="rechargeAmount" min="10" step="0.01" placeholder="10.00">
+        </div>
+        
+        <div class="wallet-address">
+            <p><i class="fas fa-wallet"></i> Wallet USDT (BEP20):</p>
+            <p id="walletAddress">0x742d35Cc6634C0532925a3b8D4B5e3B4A5F9D8C2</p>
+            <button class="copy-btn" id="copyWalletBtn"><i class="fas fa-copy"></i> Copiar</button>
+        </div>
+        
+        <p style="text-align: center; margin-bottom: 20px; color: #666;">
+            <i class="fas fa-info-circle"></i> Después de realizar la transferencia, haz clic en Validar para enviar solicitud de recarga.
+        </p>
+        
+        <button class="btn btn-primary" id="validateRechargeBtn"><i class="fas fa-check-circle"></i> Validar Recarga</button>
+        <button class="btn back-btn" id="backFromRechargeBtn"><i class="fas fa-arrow-left"></i> Volver</button>
+    </div>
+
+    <!-- Pantalla de Retiro -->
+    <div class="container screen" id="withdrawScreen">
+        <div class="logo">
+            <h1>Retirar Fondos</h1>
+            <p>Disfruta tus ganancias</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="withdrawAmount"><i class="fas fa-dollar-sign"></i> Monto a Retirar</label>
+            <input type="number" id="withdrawAmount" min="1" step="0.01" placeholder="0.00">
+        </div>
+        
+        <div class="form-group">
+            <label for="withdrawWallet"><i class="fas fa-wallet"></i> Tu Wallet BEP20 para recibir</label>
+            <input type="text" id="withdrawWallet" placeholder="0x..." required>
+        </div>
+
+        <div class="form-group">
+            <label for="withdrawType"><i class="fas fa-coins"></i> Tipo de Saldo a Retirar</label>
+            <select id="withdrawType" class="btn" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px;">
+                <option value="available">Saldo Disponible</option>
+                <option value="quantifying">Saldo de Cuantificación</option>
+            </select>
+        </div>
+        
+        <div class="message" id="withdrawMessage"></div>
+        
+        <button class="btn btn-primary" id="confirmWithdrawBtn"><i class="fas fa-paper-plane"></i> Solicitar Retiro</button>
+        <button class="btn back-btn" id="backFromWithdrawBtn"><i class="fas fa-arrow-left"></i> Volver</button>
+    </div>
+
+    <!-- Pantalla de Referidos -->
+    <div class="container screen" id="referralsScreen">
+        <div class="logo">
+            <h1>Mis Referidos</h1>
+            <p>Comparte la magia navideña</p>
+        </div>
+        
+        <div class="referral-code">
+            <p><i class="fas fa-gift"></i> Tu código de referencia:</p>
+            <p id="userReferralCode">CHRISTMAS123</p>
+            <button class="copy-btn" id="copyReferralBtn"><i class="fas fa-copy"></i> Copiar</button>
+        </div>
+        
+        <div class="referral-code">
+            <p><i class="fas fa-link"></i> Tu enlace de referencia:</p>
+            <p id="userReferralLink">https://christmas.com/ref/CHRISTMAS123</p>
+            <button class="copy-btn" id="copyReferralLinkBtn"><i class="fas fa-copy"></i> Copiar</button>
+        </div>
+        
+        <h3 style="margin-bottom: 10px;"><i class="fas fa-users"></i> Tus Referidos</h3>
+        <div class="referrals-list" id="referralsList">
+            <!-- Lista de referidos se cargará aquí -->
+        </div>
+        
+        <button class="btn back-btn" id="backFromReferralsBtn"><i class="fas fa-arrow-left"></i> Volver</button>
+    </div>
+
+    <!-- Pantalla de Cuantificación -->
+    <div class="container screen" id="quantifyScreen">
+        <div class="logo">
+            <h1>Cuantificación</h1>
+            <p>Duplica tu magia navideña</p>
+        </div>
+        
+        <div class="balance-card green">
+            <h2><i class="fas fa-chart-line"></i> Saldo en Cuantificación</h2>
+            <div class="amount" id="quantifyAmount">$0.00 USDT</div>
+        </div>
+        
+        <div class="countdown">
+            <h3><i class="fas fa-clock"></i> Tiempo Restante</h3>
+            <div class="countdown-timer" id="countdownTimer">24:00:00</div>
+            <p>Al finalizar, tu saldo se duplicará</p>
+            <div class="quantifying-animation" id="quantifyingAnimation">
+                <i class="fas fa-snowflake"></i> Cuantificando... <i class="fas fa-snowflake"></i>
+            </div>
+        </div>
+        
+        <button class="btn btn-gold" id="startQuantifyBtn"><i class="fas fa-play-circle"></i> Iniciar Cuantificación</button>
+        <button class="btn back-btn" id="backFromQuantifyBtn"><i class="fas fa-arrow-left"></i> Volver</button>
+    </div>
+
+    <!-- Panel de Administración (A PANTALLA COMPLETA) -->
+    <div class="screen" id="adminScreen">
+        <div class="admin-panel">
+            <div class="admin-header">
+                <h1><i class="fas fa-shield-alt"></i> Panel de Administración</h1>
+                <button class="btn back-btn" id="backFromAdminBtn">
+                    <i class="fas fa-arrow-left"></i> Volver a Plataforma
+                </button>
+            </div>
+
+            <!-- Tabs de Navegación -->
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="stats">📊 Estadísticas</button>
+                <button class="admin-tab" data-tab="users">👥 Usuarios</button>
+                <button class="admin-tab" data-tab="recharges">💰 Recargas Pendientes</button>
+                <button class="admin-tab" data-tab="withdrawals">🏦 Retiros Pendientes</button>
+            </div>
+
+            <!-- Contenido de las Tabs -->
+            <div class="admin-content active" id="statsContent">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Usuarios</h3>
+                        <div class="number" id="totalUsers">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Recargas Totales</h3>
+                        <div class="number" id="totalRecharges">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Retiros Totales</h3>
+                        <div class="number" id="totalWithdrawals">$0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Saldo en Plataforma</h3>
+                        <div class="number" id="totalBalance">$0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-content" id="usersContent">
+                <h3>Lista de Usuarios Registrados</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Saldo Disp.</th>
+                                <th>Saldo Quant.</th>
+                                <th>Referidos</th>
+                                <th>Fecha Reg.</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Los usuarios se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-content" id="rechargesContent">
+                <h3>Recargas Pendientes de Aprobación</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Monto</th>
+                                <th>Wallet Usado</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rechargesTableBody">
+                            <!-- Las recargas se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-content" id="withdrawalsContent">
+                <h3>Retiros Pendientes de Aprobación</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Monto</th>
+                                <th>Wallet Destino</th>
+                                <th>Tipo</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdrawalsTableBody">
+                            <!-- Los retiros se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Login Admin -->
+    <div class="container screen" id="adminLoginScreen">
+        <div class="form-container">
+            <div class="logo">
+                <h1>Admin Christmas</h1>
+                <p>Acceso de Administración</p>
+            </div>
+            
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminPassword"><i class="fas fa-lock"></i> Contraseña de Administración</label>
+                    <input type="password" id="adminPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Acceder al Panel</button>
+            </form>
+            
+            <button class="btn back-btn" id="backFromAdminLoginBtn">
+                <i class="fas fa-arrow-left"></i> Volver a Plataforma
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBb7kUK1nNHt3SVTky76g1LU2_lrbrueuc",
+            authDomain: "chrismas-f5dfc.firebaseapp.com",
+            databaseURL: "https://chrismas-f5dfc-default-rtdb.firebaseio.com",
+            projectId: "chrismas-f5dfc",
+            storageBucket: "chrismas-f5dfc.firebasestorage.app",
+            messagingSenderId: "736819010434",
+            appId: "1:736819010434:web:ea1b9f322a69b1c49b4d9b",
+            measurementId: "G-VQLDM2C7W3"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Contraseña maestra del admin
+        const ADMIN_PASSWORD = "admin123";
+
+        // Variables globales
+        let currentUser = null;
+        let quantifyTimer = null;
+
+        // ==================== INICIALIZACIÓN ====================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowAnimation();
+            checkUrlForReferral();
+            initFirebaseListeners();
+        });
+
+        // Verificar si hay código de referencia en la URL
+        function checkUrlForReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode) {
+                document.getElementById('referralCode').value = refCode;
+                showNotification(`Código de referencia ${refCode} cargado automáticamente`);
+            }
+        }
+
+        // ==================== FUNCIONES DE FIREBASE ====================
+
+        // Inicializar listeners de Firebase
+        function initFirebaseListeners() {
+            // Escuchar cambios en usuarios (para admin)
+            db.collection('users').onSnapshot((snapshot) => {
+                if (currentUser && currentUser.isAdmin) {
+                    loadAdminData();
+                }
+            });
+
+            // Escuchar cambios en recargas (para admin)
+            db.collection('rechargeRequests').onSnapshot((snapshot) => {
+                if (currentUser && currentUser.isAdmin) {
+                    loadAdminData();
+                }
+            });
+
+            // Escuchar cambios en retiros (para admin)
+            db.collection('withdrawalRequests').onSnapshot((snapshot) => {
+                if (currentUser && currentUser.isAdmin) {
+                    loadAdminData();
+                }
+            });
+        }
+
+        // Guardar usuario en Firebase
+        async function saveUserToFirebase(userData) {
+            try {
+                const userRef = db.collection('users').doc(userData.email);
+                await userRef.set({
+                    ...userData,
+                    registrationDate: new Date().toISOString(),
+                    lastUpdate: new Date().toISOString()
+                });
+                return true;
+            } catch (error) {
+                console.error('Error guardando usuario:', error);
+                return false;
+            }
+        }
+
+        // Obtener usuario de Firebase
+        async function getUserFromFirebase(email) {
+            try {
+                const userDoc = await db.collection('users').doc(email).get();
+                if (userDoc.exists) {
+                    return { id: userDoc.id, ...userDoc.data() };
+                }
+                return null;
+            } catch (error) {
+                console.error('Error obteniendo usuario:', error);
+                return null;
+            }
+        }
+
+        // Actualizar usuario en Firebase
+        async function updateUserInFirebase(email, updates) {
+            try {
+                await db.collection('users').doc(email).update({
+                    ...updates,
+                    lastUpdate: new Date().toISOString()
+                });
+                return true;
+            } catch (error) {
+                console.error('Error actualizando usuario:', error);
+                return false;
+            }
+        }
+
+        // Guardar estado de cuantificación en Firebase
+        async function saveQuantificationState(email, quantifyData) {
+            try {
+                await db.collection('quantificationState').doc(email).set({
+                    ...quantifyData,
+                    lastUpdate: new Date().toISOString()
+                });
+                return true;
+            } catch (error) {
+                console.error('Error guardando estado de cuantificación:', error);
+                return false;
+            }
+        }
+
+        // Obtener estado de cuantificación de Firebase
+        async function getQuantificationState(email) {
+            try {
+                const stateDoc = await db.collection('quantificationState').doc(email).get();
+                if (stateDoc.exists) {
+                    return stateDoc.data();
+                }
+                return null;
+            } catch (error) {
+                console.error('Error obteniendo estado de cuantificación:', error);
+                return null;
+            }
+        }
+
+        // Crear solicitud de recarga
+        async function createRechargeRequest(userId, amount, walletUsed) {
+            try {
+                await db.collection('rechargeRequests').add({
+                    userId: userId,
+                    amount: amount,
+                    walletUsed: walletUsed,
+                    status: 'pending',
+                    date: new Date().toISOString()
+                });
+                return true;
+            } catch (error) {
+                console.error('Error creando solicitud de recarga:', error);
+                return false;
+            }
+        }
+
+        // Crear solicitud de retiro
+        async function createWithdrawalRequest(userId, amount, walletAddress, type) {
+            try {
+                await db.collection('withdrawalRequests').add({
+                    userId: userId,
+                    amount: amount,
+                    walletAddress: walletAddress,
+                    type: type,
+                    status: 'pending',
+                    date: new Date().toISOString()
+                });
+                return true;
+            } catch (error) {
+                console.error('Error creando solicitud de retiro:', error);
+                return false;
+            }
+        }
+
+        // ==================== SISTEMA DE CUANTIFICACIÓN CON FIREBASE ====================
+
+        // Iniciar cuantificación
+        async function startQuantification() {
+            if (currentUser.quantifying) {
+                alert('Ya tienes una cuantificación en curso.');
+                return;
+            }
+            
+            if (currentUser.availableBalance <= 0) {
+                alert('No tienes saldo disponible para cuantificar.');
+                return;
+            }
+            
+            const amount = currentUser.availableBalance;
+            const quantifyStartTime = new Date().getTime();
+            const quantifyEndTime = quantifyStartTime + (24 * 60 * 60 * 1000); // 24 horas
+            
+            // Actualizar usuario
+            const success = await updateUserInFirebase(currentUser.email, {
+                availableBalance: 0,
+                quantifyAmount: amount,
+                quantifying: true
+            });
+            
+            if (success) {
+                // Guardar estado de cuantificación
+                await saveQuantificationState(currentUser.email, {
+                    quantifyStartTime: quantifyStartTime,
+                    quantifyEndTime: quantifyEndTime,
+                    quantifyAmount: amount,
+                    active: true
+                });
+                
+                // Actualizar usuario local
+                currentUser.availableBalance = 0;
+                currentUser.quantifyAmount = amount;
+                currentUser.quantifying = true;
+                
+                startQuantificationTimer();
+                quantifyingAnimation.style.display = 'block';
+                
+                showNotification(`¡Cuantificación iniciada! Tu saldo de $${amount.toFixed(2)} USDT se duplicará en 24 horas.`);
+            } else {
+                alert('Error al iniciar cuantificación');
+            }
+        }
+
+        // Cargar y restaurar estado de cuantificación
+        async function loadQuantificationState() {
+            if (!currentUser || !currentUser.quantifying) return;
+            
+            const state = await getQuantificationState(currentUser.email);
+            if (state && state.active) {
+                // Restaurar temporizador
+                startQuantificationTimer();
+                quantifyingAnimation.style.display = 'block';
+            }
+        }
+
+        // Iniciar temporizador de cuantificación
+        function startQuantificationTimer() {
+            updateCountdown();
+            updateQuantifyProgress();
+            
+            if (quantifyTimer) {
+                clearInterval(quantifyTimer);
+            }
+            
+            quantifyTimer = setInterval(() => {
+                updateCountdown();
+                updateQuantifyProgress();
+            }, 1000);
+        }
+
+        // Actualizar cuenta regresiva
+        async function updateCountdown() {
+            if (!currentUser || !currentUser.quantifying) {
+                countdownTimer.textContent = '24:00:00';
+                return;
+            }
+            
+            const state = await getQuantificationState(currentUser.email);
+            if (!state || !state.active) return;
+            
+            const now = new Date().getTime();
+            const remaining = state.quantifyEndTime - now;
+            
+            if (remaining <= 0) {
+                completeQuantification();
+                return;
+            }
+            
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+            
+            countdownTimer.textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Completar cuantificación
+        async function completeQuantification() {
+            if (!currentUser) return;
+            
+            const amount = currentUser.quantifyAmount * 2; // Duplicar el saldo
+            
+            const success = await updateUserInFirebase(currentUser.email, {
+                quantifyingBalance: (currentUser.quantifyingBalance || 0) + amount,
+                quantifyAmount: 0,
+                quantifying: false
+            });
+            
+            if (success) {
+                // Limpiar estado de cuantificación
+                await saveQuantificationState(currentUser.email, {
+                    active: false
+                });
+                
+                // Actualizar usuario local
+                currentUser.quantifyingBalance += amount;
+                currentUser.quantifyAmount = 0;
+                currentUser.quantifying = false;
+                
+                if (quantifyTimer) {
+                    clearInterval(quantifyTimer);
+                }
+                
+                updateUI();
+                showNotification('¡Cuantificación completada! Tu saldo se ha duplicado.');
+                
+                if (quantifyScreen.classList.contains('active')) {
+                    quantifyScreen.classList.remove('active');
+                    mainScreen.classList.add('active');
+                }
+            }
+        }
+
+        // ==================== SISTEMA DE USUARIO ====================
+
+        // Elementos DOM
+        const authContainer = document.getElementById('authContainer');
+        const mainScreen = document.getElementById('mainScreen');
+        const rechargeScreen = document.getElementById('rechargeScreen');
+        const withdrawScreen = document.getElementById('withdrawScreen');
+        const referralsScreen = document.getElementById('referralsScreen');
+        const quantifyScreen = document.getElementById('quantifyScreen');
+        const adminScreen = document.getElementById('adminScreen');
+        const adminLoginScreen = document.getElementById('adminLoginScreen');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const adminAccessContainer = document.getElementById('adminAccessContainer');
+        const userEmail = document.getElementById('userEmail');
+        
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginMessage = document.getElementById('loginMessage');
+        const registerMessage = document.getElementById('registerMessage');
+        
+        const rechargeBtn = document.getElementById('rechargeBtn');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const referralsBtn = document.getElementById('referralsBtn');
+        const quantifyBtn = document.getElementById('quantifyBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        const backFromRechargeBtn = document.getElementById('backFromRechargeBtn');
+        const backFromWithdrawBtn = document.getElementById('backFromWithdrawBtn');
+        const backFromReferralsBtn = document.getElementById('backFromReferralsBtn');
+        const backFromQuantifyBtn = document.getElementById('backFromQuantifyBtn');
+        
+        const validateRechargeBtn = document.getElementById('validateRechargeBtn');
+        const confirmWithdrawBtn = document.getElementById('confirmWithdrawBtn');
+        const startQuantifyBtn = document.getElementById('startQuantifyBtn');
+        const copyWalletBtn = document.getElementById('copyWalletBtn');
+        const copyReferralBtn = document.getElementById('copyReferralBtn');
+        const copyReferralLinkBtn = document.getElementById('copyReferralLinkBtn');
+        
+        const availableBalance = document.getElementById('availableBalance');
+        const quantifyingBalance = document.getElementById('quantifyingBalance');
+        const quantifyAmount = document.getElementById('quantifyAmount');
+        const countdownTimer = document.getElementById('countdownTimer');
+        const quantifyProgress = document.getElementById('quantifyProgress');
+        const quantifyStatus = document.getElementById('quantifyStatus');
+        const quantifyingAnimation = document.getElementById('quantifyingAnimation');
+        const referralsList = document.getElementById('referralsList');
+        const userReferralCode = document.getElementById('userReferralCode');
+        const userReferralLink = document.getElementById('userReferralLink');
+        const withdrawMessage = document.getElementById('withdrawMessage');
+
+        // Elementos Admin
+        const adminAccessBtn = document.getElementById('adminAccessBtn');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const backFromAdminBtn = document.getElementById('backFromAdminBtn');
+        const backFromAdminLoginBtn = document.getElementById('backFromAdminLoginBtn');
+        const adminTabs = document.querySelectorAll('.admin-tab');
+        const adminContents = document.querySelectorAll('.admin-content');
+
+        // CORRECCIÓN: Navegación entre formularios de login y registro
+        // Mostrar formulario de login (desde registro)
+        showLogin.addEventListener('click', () => {
+            authContainer.classList.remove('active');
+            clearMessages();
+        });
+
+        // Mostrar formulario de registro (desde login)
+        showRegister.addEventListener('click', () => {
+            authContainer.classList.add('active');
+            clearMessages();
+        });
+
+        // Manejar envío del formulario de registro
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const referralCode = document.getElementById('referralCode').value;
+            
+            if (!email || !password) {
+                showMessage(registerMessage, 'Por favor, completa todos los campos obligatorios.', 'error');
+                return;
+            }
+            
+            // Verificar si el usuario ya existe
+            const existingUser = await getUserFromFirebase(email);
+            if (existingUser) {
+                showMessage(registerMessage, 'Este correo ya está registrado.', 'error');
+                return;
+            }
+            
+            // Crear nuevo usuario
+            const newUser = {
+                email: email,
+                password: password, // En producción, esto debería ser un hash
+                availableBalance: 0,
+                quantifyingBalance: 0,
+                referralCode: 'CHRISTMAS' + Math.floor(1000 + Math.random() * 9000),
+                referrals: [],
+                quantifying: false,
+                quantifyAmount: 0,
+                isAdmin: false
+            };
+            
+            // Guardar en Firebase
+            const success = await saveUserToFirebase(newUser);
+            
+            if (success) {
+                currentUser = newUser;
+                showMessage(registerMessage, '¡Registro exitoso! Ahora puedes iniciar sesión.', 'success');
+                
+                // Limpiar formulario
+                registerForm.reset();
+                
+                // Cambiar al formulario de login después de un breve retraso
+                setTimeout(() => {
+                    authContainer.classList.remove('active');
+                    showMessage(loginMessage, 'Tu cuenta ha sido creada. Por favor, inicia sesión.', 'success');
+                }, 1500);
+            } else {
+                showMessage(registerMessage, 'Error al crear la cuenta. Intenta nuevamente.', 'error');
+            }
+        });
+
+        // Manejar envío del formulario de login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage(loginMessage, 'Por favor, ingresa tu correo y contraseña.', 'error');
+                return;
+            }
+            
+            // Obtener usuario de Firebase
+            const user = await getUserFromFirebase(email);
+            
+            if (!user) {
+                showMessage(loginMessage, 'Usuario no encontrado.', 'error');
+                return;
+            }
+            
+            if (user.password !== password) { // En producción, comparar hashes
+                showMessage(loginMessage, 'Contraseña incorrecta.', 'error');
+                return;
+            }
+            
+            // Login exitoso
+            currentUser = user;
+            showMessage(loginMessage, '¡Inicio de sesión exitoso!', 'success');
+            
+            // Cargar estado de cuantificación si está activa
+            await loadQuantificationState();
+            
+            // Cambiar a pantalla principal después de un breve retraso
+            setTimeout(() => {
+                authContainer.style.display = 'none';
+                mainScreen.classList.add('active');
+                loginForm.reset();
+                updateUI();
+                showNotification('¡Bienvenido a Christmas!');
+                
+                // MOSTRAR BOTÓN ADMIN cuando el usuario esté logueado
+                adminAccessContainer.style.display = 'block';
+            }, 1000);
+        });
+
+        // NUEVO: Función para cerrar sesión
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                // Limpiar datos de usuario
+                currentUser = null;
+                
+                // Detener temporizador de cuantificación si está activo
+                if (quantifyTimer) {
+                    clearInterval(quantifyTimer);
+                    quantifyTimer = null;
+                }
+                
+                // Ocultar botón admin
+                adminAccessContainer.style.display = 'none';
+                
+                // Volver a pantalla de login
+                mainScreen.classList.remove('active');
+                authContainer.style.display = 'block';
+                authContainer.classList.remove('active'); // Mostrar login por defecto
+                
+                // Limpiar mensajes
+                clearMessages();
+                
+                showNotification('Sesión cerrada correctamente');
+            }
+        });
+
+        // Actualizar la interfaz de usuario
+        function updateUI() {
+            if (!currentUser) return;
+            
+            // Mostrar email del usuario
+            userEmail.textContent = currentUser.email;
+            
+            availableBalance.textContent = `$${(currentUser.availableBalance || 0).toFixed(2)} USDT`;
+            quantifyingBalance.textContent = `$${(currentUser.quantifyingBalance || 0).toFixed(2)} USDT`;
+            quantifyAmount.textContent = `$${(currentUser.quantifyAmount || 0).toFixed(2)} USDT`;
+            userReferralCode.textContent = currentUser.referralCode;
+            userReferralLink.textContent = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
+            
+            // Actualizar lista de referidos
+            referralsList.innerHTML = '';
+            if (!currentUser.referrals || currentUser.referrals.length === 0) {
+                referralsList.innerHTML = '<p style="text-align: center; padding: 20px; color: #777;">Aún no tienes referidos</p>';
+            } else {
+                currentUser.referrals.forEach(ref => {
+                    const item = document.createElement('div');
+                    item.className = 'referral-item';
+                    item.innerHTML = `
+                        <span>${ref.email}</span>
+                        <span>$${ref.rechargeAmount.toFixed(2)}</span>
+                    `;
+                    referralsList.appendChild(item);
+                });
+            }
+            
+            updateQuantifyProgress();
+        }
+
+        // Actualizar barra de progreso de cuantificación
+        async function updateQuantifyProgress() {
+            if (!currentUser || !currentUser.quantifying) {
+                quantifyProgress.style.width = '0%';
+                quantifyStatus.textContent = 'No hay cuantificación activa';
+                quantifyingAnimation.style.display = 'none';
+                return;
+            }
+            
+            const state = await getQuantificationState(currentUser.email);
+            if (!state || !state.active) return;
+            
+            const now = new Date().getTime();
+            const totalTime = state.quantifyEndTime - state.quantifyStartTime;
+            const elapsed = now - state.quantifyStartTime;
+            const progress = Math.min(100, (elapsed / totalTime) * 100);
+            
+            quantifyProgress.style.width = `${progress}%`;
+            
+            if (progress >= 100) {
+                quantifyStatus.textContent = '¡Cuantificación completada!';
+                quantifyingAnimation.innerHTML = '<i class="fas fa-check-circle"></i> ¡Completado!';
+            } else {
+                quantifyStatus.textContent = 'Cuantificación en progreso...';
+                quantifyingAnimation.style.display = 'block';
+            }
+            
+            // Actualizar saldo en cuantificación en tiempo real
+            if (currentUser.quantifying) {
+                const currentQuantifying = currentUser.quantifyAmount + (currentUser.quantifyAmount * (progress / 100));
+                quantifyingBalance.textContent = `$${currentQuantifying.toFixed(2)} USDT`;
+            }
+        }
+
+        // Navegación entre pantallas
+        rechargeBtn.addEventListener('click', () => {
+            mainScreen.classList.remove('active');
+            rechargeScreen.classList.add('active');
+        });
+
+        withdrawBtn.addEventListener('click', () => {
+            mainScreen.classList.remove('active');
+            withdrawScreen.classList.add('active');
+            withdrawMessage.style.display = 'none';
+        });
+
+        referralsBtn.addEventListener('click', () => {
+            mainScreen.classList.remove('active');
+            referralsScreen.classList.add('active');
+        });
+
+        quantifyBtn.addEventListener('click', () => {
+            mainScreen.classList.remove('active');
+            quantifyScreen.classList.add('active');
+            
+            // Si hay una cuantificación en curso, actualizar el temporizador
+            if (currentUser.quantifying) {
+                updateCountdown();
+            } else {
+                quantifyingAnimation.style.display = 'none';
+            }
+        });
+
+        // Botones de volver
+        backFromRechargeBtn.addEventListener('click', () => {
+            rechargeScreen.classList.remove('active');
+            mainScreen.classList.add('active');
+        });
+
+        backFromWithdrawBtn.addEventListener('click', () => {
+            withdrawScreen.classList.remove('active');
+            mainScreen.classList.add('active');
+        });
+
+        backFromReferralsBtn.addEventListener('click', () => {
+            referralsScreen.classList.remove('active');
+            mainScreen.classList.add('active');
+        });
+
+        backFromQuantifyBtn.addEventListener('click', () => {
+            quantifyScreen.classList.remove('active');
+            mainScreen.classList.add('active');
+        });
+
+        // Validar recarga
+        validateRechargeBtn.addEventListener('click', async () => {
+            const amount = parseFloat(document.getElementById('rechargeAmount').value);
+            
+            if (!amount || amount < 10) {
+                alert('El monto mínimo de recarga es 10 USDT');
+                return;
+            }
+            
+            // Crear solicitud de recarga en Firebase
+            const success = await createRechargeRequest(
+                currentUser.email, 
+                amount, 
+                document.getElementById('walletAddress').textContent
+            );
+            
+            if (success) {
+                showNotification('Solicitud de recarga enviada. Espera aprobación del admin.');
+                document.getElementById('rechargeAmount').value = '';
+                rechargeScreen.classList.remove('active');
+                mainScreen.classList.add('active');
+            } else {
+                alert('Error al enviar solicitud de recarga');
+            }
+        });
+
+        // Confirmar retiro
+        confirmWithdrawBtn.addEventListener('click', async () => {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const wallet = document.getElementById('withdrawWallet').value;
+            const type = document.getElementById('withdrawType').value;
+            
+            if (!amount || amount <= 0) {
+                showMessage(withdrawMessage, 'Ingresa un monto válido para retirar.', 'error');
+                return;
+            }
+            
+            if (!wallet) {
+                showMessage(withdrawMessage, 'Ingresa una dirección de wallet válida.', 'error');
+                return;
+            }
+            
+            // Verificar saldo según el tipo
+            if (type === 'available' && amount > currentUser.availableBalance) {
+                showMessage(withdrawMessage, 'No tienes suficiente saldo disponible para este retiro.', 'error');
+                return;
+            }
+            
+            if (type === 'quantifying' && amount > currentUser.quantifyingBalance) {
+                showMessage(withdrawMessage, 'No tienes suficiente saldo de cuantificación para este retiro.', 'error');
+                return;
+            }
+            
+            // Crear solicitud de retiro en Firebase
+            const success = await createWithdrawalRequest(
+                currentUser.email,
+                amount,
+                wallet,
+                type
+            );
+            
+            if (success) {
+                showMessage(withdrawMessage, 'Solicitud de retiro enviada. Espera aprobación del admin.', 'success');
+                
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('withdrawWallet').value = '';
+                
+                setTimeout(() => {
+                    withdrawScreen.classList.remove('active');
+                    mainScreen.classList.add('active');
+                }, 2000);
+            } else {
+                showMessage(withdrawMessage, 'Error al enviar solicitud de retiro.', 'error');
+            }
+        });
+
+        // Iniciar cuantificación
+        startQuantifyBtn.addEventListener('click', startQuantification);
+
+        // ==================== SISTEMA DE ADMIN ====================
+
+        // Botón de acceso admin
+        adminAccessBtn.addEventListener('click', () => {
+            mainScreen.classList.remove('active');
+            adminLoginScreen.classList.add('active');
+        });
+
+        // Login Admin
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                currentUser.isAdmin = true;
+                adminLoginScreen.classList.remove('active');
+                adminScreen.classList.add('active');
+                loadAdminData();
+                showNotification('Acceso admin concedido');
+            } else {
+                alert('Contraseña incorrecta');
+            }
+        });
+
+        // Navegación entre tabs admin
+        adminTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Remover active de todos
+                adminTabs.forEach(t => t.classList.remove('active'));
+                adminContents.forEach(c => c.classList.remove('active'));
+                
+                // Activar tab seleccionado
+                tab.classList.add('active');
+                document.getElementById(`${tabId}Content`).classList.add('active');
+            });
+        });
+
+        // Volver desde admin
+        backFromAdminBtn.addEventListener('click', () => {
+            adminScreen.classList.remove('active');
+            mainScreen.classList.add('active');
+            currentUser.isAdmin = false;
+        });
+
+        backFromAdminLoginBtn.addEventListener('click', () => {
+            adminLoginScreen.classList.remove('active');
+            mainScreen.classList.add('active');
+        });
+
+        // Cargar datos para el panel admin
+        async function loadAdminData() {
+            try {
+                // Cargar usuarios
+                const usersSnapshot = await db.collection('users').get();
+                const users = [];
+                usersSnapshot.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+                displayUsers(users);
+
+                // Cargar recargas pendientes
+                const rechargesSnapshot = await db.collection('rechargeRequests')
+                    .where('status', '==', 'pending').get();
+                const recharges = [];
+                rechargesSnapshot.forEach(doc => {
+                    recharges.push({ id: doc.id, ...doc.data() });
+                });
+                displayRecharges(recharges);
+
+                // Cargar retiros pendientes
+                const withdrawalsSnapshot = await db.collection('withdrawalRequests')
+                    .where('status', '==', 'pending').get();
+                const withdrawals = [];
+                withdrawalsSnapshot.forEach(doc => {
+                    withdrawals.push({ id: doc.id, ...doc.data() });
+                });
+                displayWithdrawals(withdrawals);
+
+                // Calcular estadísticas
+                calculateStats(users, recharges, withdrawals);
+
+            } catch (error) {
+                console.error('Error cargando datos admin:', error);
+            }
+        }
+
+        // Mostrar usuarios en la tabla
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.email}</td>
+                    <td>$${user.availableBalance || 0}</td>
+                    <td>$${user.quantifyingBalance || 0}</td>
+                    <td>${user.referrals ? user.referrals.length : 0}</td>
+                    <td>${new Date(user.registrationDate).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-sm btn-danger" onclick="deleteUser('${user.id}')">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Mostrar recargas pendientes
+        function displayRecharges(recharges) {
+            const tbody = document.getElementById('rechargesTableBody');
+            tbody.innerHTML = '';
+
+            recharges.forEach(recharge => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${recharge.userId}</td>
+                    <td>$${recharge.amount}</td>
+                    <td>${recharge.walletUsed}</td>
+                    <td>${new Date(recharge.date).toLocaleDateString()}</td>
+                    <td class="status-pending">Pendiente</td>
+                    <td>
+                        <button class="btn-sm btn-success" onclick="approveRecharge('${recharge.id}', '${recharge.userId}', ${recharge.amount})">
+                            <i class="fas fa-check"></i> Aprobar
+                        </button>
+                        <button class="btn-sm btn-danger" onclick="rejectRecharge('${recharge.id}')">
+                            <i class="fas fa-times"></i> Rechazar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Mostrar retiros pendientes
+        function displayWithdrawals(withdrawals) {
+            const tbody = document.getElementById('withdrawalsTableBody');
+            tbody.innerHTML = '';
+
+            withdrawals.forEach(withdrawal => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${withdrawal.userId}</td>
+                    <td>$${withdrawal.amount}</td>
+                    <td>${withdrawal.walletAddress}</td>
+                    <td>${withdrawal.type}</td>
+                    <td>${new Date(withdrawal.date).toLocaleDateString()}</td>
+                    <td class="status-pending">Pendiente</td>
+                    <td>
+                        <button class="btn-sm btn-success" onclick="approveWithdrawal('${withdrawal.id}', '${withdrawal.userId}', ${withdrawal.amount}, '${withdrawal.type}')">
+                            <i class="fas fa-check"></i> Aprobar
+                        </button>
+                        <button class="btn-sm btn-danger" onclick="rejectWithdrawal('${withdrawal.id}')">
+                            <i class="fas fa-times"></i> Rechazar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Calcular estadísticas
+        function calculateStats(users, recharges, withdrawals) {
+            document.getElementById('totalUsers').textContent = users.length;
+            
+            const totalRecharges = recharges.reduce((sum, r) => sum + r.amount, 0);
+            document.getElementById('totalRecharges').textContent = `$${totalRecharges}`;
+            
+            const totalWithdrawals = withdrawals.reduce((sum, w) => sum + w.amount, 0);
+            document.getElementById('totalWithdrawals').textContent = `$${totalWithdrawals}`;
+            
+            const totalBalance = users.reduce((sum, u) => sum + (u.availableBalance || 0) + (u.quantifyingBalance || 0), 0);
+            document.getElementById('totalBalance').textContent = `$${totalBalance}`;
+        }
+
+        // ==================== FUNCIONES DE ACCIÓN DEL ADMIN ====================
+
+        // Aprobar recarga
+        async function approveRecharge(requestId, userId, amount) {
+            try {
+                // Actualizar estado de la solicitud
+                await db.collection('rechargeRequests').doc(requestId).update({
+                    status: 'approved',
+                    approvedDate: new Date().toISOString()
+                });
+
+                // Sumar saldo al usuario
+                const userRef = db.collection('users').doc(userId);
+                const userDoc = await userRef.get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const newBalance = (userData.availableBalance || 0) + amount;
+                    
+                    await userRef.update({
+                        availableBalance: newBalance,
+                        lastUpdate: new Date().toISOString()
+                    });
+                }
+
+                showNotification('Recarga aprobada exitosamente');
+                loadAdminData(); // Recargar datos
+
+            } catch (error) {
+                console.error('Error aprobando recarga:', error);
+                alert('Error al aprobar recarga');
+            }
+        }
+
+        // Rechazar recarga
+        async function rejectRecharge(requestId) {
+            try {
+                await db.collection('rechargeRequests').doc(requestId).update({
+                    status: 'rejected',
+                    rejectedDate: new Date().toISOString()
+                });
+                
+                showNotification('Recarga rechazada');
+                loadAdminData();
+            } catch (error) {
+                console.error('Error rechazando recarga:', error);
+            }
+        }
+
+        // Aprobar retiro
+        async function approveWithdrawal(requestId, userId, amount, type) {
+            try {
+                // Actualizar estado de la solicitud
+                await db.collection('withdrawalRequests').doc(requestId).update({
+                    status: 'approved',
+                    approvedDate: new Date().toISOString()
+                });
+
+                // Restar saldo al usuario según el tipo
+                const userRef = db.collection('users').doc(userId);
+                const userDoc = await userRef.get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    
+                    if (type === 'available') {
+                        const newBalance = (userData.availableBalance || 0) - amount;
+                        await userRef.update({
+                            availableBalance: Math.max(0, newBalance),
+                            lastUpdate: new Date().toISOString()
+                        });
+                    } else if (type === 'quantifying') {
+                        const newBalance = (userData.quantifyingBalance || 0) - amount;
+                        await userRef.update({
+                            quantifyingBalance: Math.max(0, newBalance),
+                            lastUpdate: new Date().toISOString()
+                        });
+                    }
+                }
+
+                showNotification('Retiro aprobado exitosamente');
+                loadAdminData();
+
+            } catch (error) {
+                console.error('Error aprobando retiro:', error);
+                alert('Error al aprobar retiro');
+            }
+        }
+
+        // Rechazar retiro
+        async function rejectWithdrawal(requestId) {
+            try {
+                await db.collection('withdrawalRequests').doc(requestId).update({
+                    status: 'rejected',
+                    rejectedDate: new Date().toISOString()
+                });
+                
+                showNotification('Retiro rechazado');
+                loadAdminData();
+            } catch (error) {
+                console.error('Error rechazando retiro:', error);
+            }
+        }
+
+        // Eliminar usuario
+        async function deleteUser(userId) {
+            if (confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
+                try {
+                    await db.collection('users').doc(userId).delete();
+                    showNotification('Usuario eliminado');
+                    loadAdminData();
+                } catch (error) {
+                    console.error('Error eliminando usuario:', error);
+                    alert('Error al eliminar usuario');
+                }
+            }
+        }
+
+        // ==================== FUNCIONES UTILITARIAS ====================
+
+        // Crear animación de nieve
+        function createSnowAnimation() {
+            const container = document.querySelector('.animation-container');
+            for (let i = 0; i < 25; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = '❄';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 5 + 3) + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                container.appendChild(snowflake);
+            }
+        }
+
+        // Copiar dirección de wallet
+        copyWalletBtn.addEventListener('click', () => {
+            const walletAddress = document.getElementById('walletAddress').textContent;
+            copyToClipboard(walletAddress, 'Wallet copiada al portapapeles');
+        });
+
+        // Copiar código de referencia
+        copyReferralBtn.addEventListener('click', () => {
+            const referralCode = userReferralCode.textContent;
+            copyToClipboard(referralCode, 'Código de referencia copiado');
+        });
+
+        // Copiar enlace de referencia
+        copyReferralLinkBtn.addEventListener('click', () => {
+            const referralLink = userReferralLink.textContent;
+            copyToClipboard(referralLink, 'Enlace de referencia copiado');
+        });
+
+        // Función para copiar al portapapeles
+        function copyToClipboard(text, message) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(message);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+                // Fallback para navegadores antiguos
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                showNotification(message);
+            });
+        }
+
+        // Mostrar notificación
+        function showNotification(message) {
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Función para mostrar mensajes
+        function showMessage(element, text, type) {
+            element.textContent = text;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+            
+            // Ocultar mensaje después de 5 segundos
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Función para limpiar mensajes
+        function clearMessages() {
+            loginMessage.style.display = 'none';
+            registerMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
