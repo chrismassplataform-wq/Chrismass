@@ -248,7 +248,6 @@
             }
         }
 
-        /* CORRECCIÓN DEFINITIVA: Enlace siempre visible */
         .toggle-text {
             text-align: center;
             margin-top: 40px;
@@ -309,7 +308,6 @@
             border-left: 4px solid var(--color-rojo-navidad);
         }
 
-        /* Estilos para pantallas internas */
         .screen {
             display: none;
             padding: 25px;
@@ -410,6 +408,10 @@
 
         .balance-card.green {
             background: linear-gradient(135deg, var(--color-verde-navidad), var(--color-verde));
+        }
+
+        .balance-card.blue {
+            background: linear-gradient(135deg, var(--color-azul), #4A90E2);
         }
 
         .animation-container {
@@ -588,7 +590,6 @@
             transform: translateX(0);
         }
 
-        /* NUEVOS ESTILOS PARA ADMIN */
         .admin-access {
             position: fixed;
             top: 10px;
@@ -613,7 +614,6 @@
             transform: scale(1.1);
         }
 
-        /* CORRECCIÓN: Panel Admin a pantalla completa */
         .admin-panel {
             background: rgba(255, 255, 255, 0.98);
             border-radius: 15px;
@@ -760,7 +760,6 @@
             font-weight: bold;
         }
 
-        /* NUEVO: Botón de cerrar sesión */
         .logout-btn {
             background: linear-gradient(135deg, #dc3545, #c82333);
             color: white;
@@ -775,9 +774,62 @@
             border-radius: 10px;
             font-weight: 500;
         }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--color-azul), #4A90E2);
+            color: white;
+            width: auto;
+            padding: 10px 20px;
+            margin: 0 auto 15px auto;
+            display: block;
+        }
+
+        /* Botón flotante de WhatsApp */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            z-index: 1000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse-whatsapp 2s infinite;
+            text-decoration: none;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+        }
+
+        @keyframes pulse-whatsapp {
+            0% {
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(37, 211, 102, 0.8);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Botón flotante de WhatsApp -->
+    <a href="https://wa.me/1234567890" class="whatsapp-float" target="_blank" id="whatsappBtn">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
     <!-- Notificación -->
     <div class="notification" id="notification">
         <i class="fas fa-check-circle"></i> <span id="notificationText">Operación exitosa</span>
@@ -817,7 +869,6 @@
                 <button type="submit" class="btn btn-register"><i class="fas fa-user-plus"></i> Registrarse</button>
             </form>
             
-            <!-- CORREGIDO: Enlace MUY visible -->
             <div class="toggle-text">
                 ¿Ya tienes una cuenta? <span class="toggle-link" id="showLogin">Inicia Sesión</span>
             </div>
@@ -876,9 +927,15 @@
             <div id="quantifyStatus">No hay cuantificación activa</div>
         </div>
         
+        <!-- Tarjeta de Comisiones -->
+        <div class="balance-card blue" id="commissionsCard" style="display: none;">
+            <h2><i class="fas fa-hand-holding-usd"></i> Comisiones por Referidos</h2>
+            <div class="amount" id="totalCommissions">$0.00 USDT</div>
+            <p>Total ganado por referidos</p>
+        </div>
+        
         <div class="animation-container">
             <div class="gift">🎁</div>
-            <!-- Animación de nieve se generará con JS -->
         </div>
         
         <button class="btn btn-primary" id="rechargeBtn"><i class="fas fa-plus-circle"></i> Recargar</button>
@@ -886,7 +943,6 @@
         <button class="btn btn-tertiary" id="referralsBtn"><i class="fas fa-users"></i> Referidos</button>
         <button class="btn btn-gold pulse" id="quantifyBtn"><i class="fas fa-magic"></i> Cuantificación</button>
         
-        <!-- NUEVO: Botón de cerrar sesión -->
         <button class="btn logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
     </div>
 
@@ -938,6 +994,7 @@
             <select id="withdrawType" class="btn" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px;">
                 <option value="available">Saldo Disponible</option>
                 <option value="quantifying">Saldo de Cuantificación</option>
+                <option value="commissions">Comisiones por Referidos</option>
             </select>
         </div>
         
@@ -954,6 +1011,10 @@
             <p>Comparte la magia navideña</p>
         </div>
         
+        <button class="btn refresh-btn" id="refreshReferralsBtn">
+            <i class="fas fa-sync-alt"></i> Actualizar Lista
+        </button>
+        
         <div class="referral-code">
             <p><i class="fas fa-gift"></i> Tu código de referencia:</p>
             <p id="userReferralCode">CHRISTMAS123</p>
@@ -962,7 +1023,7 @@
         
         <div class="referral-code">
             <p><i class="fas fa-link"></i> Tu enlace de referencia:</p>
-            <p id="userReferralLink">https://christmas.com/ref/CHRISTMAS123</p>
+            <p id="userReferralLink">https://chrismassplataform-wq.github.io/Chrismass/?ref=CHRISTMAS123</p>
             <button class="copy-btn" id="copyReferralLinkBtn"><i class="fas fa-copy"></i> Copiar</button>
         </div>
         
@@ -999,7 +1060,7 @@
         <button class="btn back-btn" id="backFromQuantifyBtn"><i class="fas fa-arrow-left"></i> Volver</button>
     </div>
 
-    <!-- Panel de Administración (A PANTALLA COMPLETA) -->
+    <!-- Panel de Administración -->
     <div class="screen" id="adminScreen">
         <div class="admin-panel">
             <div class="admin-header">
@@ -1009,7 +1070,6 @@
                 </button>
             </div>
 
-            <!-- Tabs de Navegación -->
             <div class="admin-tabs">
                 <button class="admin-tab active" data-tab="stats">📊 Estadísticas</button>
                 <button class="admin-tab" data-tab="users">👥 Usuarios</button>
@@ -1017,7 +1077,6 @@
                 <button class="admin-tab" data-tab="withdrawals">🏦 Retiros Pendientes</button>
             </div>
 
-            <!-- Contenido de las Tabs -->
             <div class="admin-content active" id="statsContent">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1049,12 +1108,12 @@
                                 <th>Saldo Disp.</th>
                                 <th>Saldo Quant.</th>
                                 <th>Referidos</th>
+                                <th>Comisiones</th>
                                 <th>Fecha Reg.</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="usersTableBody">
-                            <!-- Los usuarios se cargarán aquí -->
                         </tbody>
                     </table>
                 </div>
@@ -1075,7 +1134,6 @@
                             </tr>
                         </thead>
                         <tbody id="rechargesTableBody">
-                            <!-- Las recargas se cargarán aquí -->
                         </tbody>
                     </table>
                 </div>
@@ -1097,7 +1155,6 @@
                             </tr>
                         </thead>
                         <tbody id="withdrawalsTableBody">
-                            <!-- Los retiros se cargarán aquí -->
                         </tbody>
                     </table>
                 </div>
@@ -1151,13 +1208,14 @@
         // Variables globales
         let currentUser = null;
         let quantifyTimer = null;
+        let userListener = null;
 
         // ==================== INICIALIZACIÓN ====================
 
         document.addEventListener('DOMContentLoaded', function() {
             createSnowAnimation();
             checkUrlForReferral();
-            initFirebaseListeners();
+            initEventListeners();
         });
 
         // Verificar si hay código de referencia en la URL
@@ -1171,30 +1229,6 @@
         }
 
         // ==================== FUNCIONES DE FIREBASE ====================
-
-        // Inicializar listeners de Firebase
-        function initFirebaseListeners() {
-            // Escuchar cambios en usuarios (para admin)
-            db.collection('users').onSnapshot((snapshot) => {
-                if (currentUser && currentUser.isAdmin) {
-                    loadAdminData();
-                }
-            });
-
-            // Escuchar cambios en recargas (para admin)
-            db.collection('rechargeRequests').onSnapshot((snapshot) => {
-                if (currentUser && currentUser.isAdmin) {
-                    loadAdminData();
-                }
-            });
-
-            // Escuchar cambios en retiros (para admin)
-            db.collection('withdrawalRequests').onSnapshot((snapshot) => {
-                if (currentUser && currentUser.isAdmin) {
-                    loadAdminData();
-                }
-            });
-        }
 
         // Guardar usuario en Firebase
         async function saveUserToFirebase(userData) {
@@ -1240,34 +1274,6 @@
             }
         }
 
-        // Guardar estado de cuantificación en Firebase
-        async function saveQuantificationState(email, quantifyData) {
-            try {
-                await db.collection('quantificationState').doc(email).set({
-                    ...quantifyData,
-                    lastUpdate: new Date().toISOString()
-                });
-                return true;
-            } catch (error) {
-                console.error('Error guardando estado de cuantificación:', error);
-                return false;
-            }
-        }
-
-        // Obtener estado de cuantificación de Firebase
-        async function getQuantificationState(email) {
-            try {
-                const stateDoc = await db.collection('quantificationState').doc(email).get();
-                if (stateDoc.exists) {
-                    return stateDoc.data();
-                }
-                return null;
-            } catch (error) {
-                console.error('Error obteniendo estado de cuantificación:', error);
-                return null;
-            }
-        }
-
         // Crear solicitud de recarga
         async function createRechargeRequest(userId, amount, walletUsed) {
             try {
@@ -1303,141 +1309,169 @@
             }
         }
 
-        // ==================== SISTEMA DE CUANTIFICACIÓN CON FIREBASE ====================
+        // ==================== SISTEMA DE REFERIDOS CORREGIDO ====================
 
-        // Iniciar cuantificación
-        async function startQuantification() {
-            if (currentUser.quantifying) {
-                alert('Ya tienes una cuantificación en curso.');
-                return;
-            }
+        // Procesar referencia al registrar usuario - VERSIÓN CORREGIDA
+        async function processReferral(newUserEmail, referralCode) {
+            if (!referralCode) return;
             
-            if (currentUser.availableBalance <= 0) {
-                alert('No tienes saldo disponible para cuantificar.');
-                return;
-            }
-            
-            const amount = currentUser.availableBalance;
-            const quantifyStartTime = new Date().getTime();
-            const quantifyEndTime = quantifyStartTime + (24 * 60 * 60 * 1000); // 24 horas
-            
-            // Actualizar usuario
-            const success = await updateUserInFirebase(currentUser.email, {
-                availableBalance: 0,
-                quantifyAmount: amount,
-                quantifying: true
-            });
-            
-            if (success) {
-                // Guardar estado de cuantificación
-                await saveQuantificationState(currentUser.email, {
-                    quantifyStartTime: quantifyStartTime,
-                    quantifyEndTime: quantifyEndTime,
-                    quantifyAmount: amount,
-                    active: true
+            try {
+                console.log(`Procesando referencia: ${newUserEmail} con código: ${referralCode}`);
+                
+                // Buscar usuario que tiene este código de referencia
+                const usersSnapshot = await db.collection('users').get();
+                let referrerUser = null;
+                let referrerId = null;
+                
+                usersSnapshot.forEach(doc => {
+                    const user = doc.data();
+                    if (user.referralCode === referralCode) {
+                        referrerUser = user;
+                        referrerId = doc.id;
+                    }
                 });
                 
-                // Actualizar usuario local
-                currentUser.availableBalance = 0;
-                currentUser.quantifyAmount = amount;
-                currentUser.quantifying = true;
+                if (referrerUser && referrerId) {
+                    console.log(`Referidor encontrado: ${referrerUser.email}`);
+                    
+                    // Crear el nuevo referido
+                    const newReferral = {
+                        email: newUserEmail,
+                        registrationDate: new Date().toISOString(),
+                        rechargeAmount: 0,
+                        hasRecharged: false,
+                        commission: 0
+                    };
+                    
+                    // Obtener referidos actuales o crear array vacío
+                    const currentReferrals = referrerUser.referrals || [];
+                    const updatedReferrals = [...currentReferrals, newReferral];
+                    
+                    // Actualizar referrer en Firebase
+                    await db.collection('users').doc(referrerId).update({
+                        referrals: updatedReferrals,
+                        lastUpdate: new Date().toISOString()
+                    });
+                    
+                    console.log(`Referidos actualizados para ${referrerUser.email}:`, updatedReferrals.length);
+                    
+                    // También guardar quién refirió al nuevo usuario
+                    await db.collection('users').doc(newUserEmail).update({
+                        referredBy: referrerUser.email,
+                        referralCodeUsed: referralCode
+                    });
+                    
+                    console.log(`Usuario ${newUserEmail} registrado como referido de ${referrerUser.email}`);
+                    
+                } else {
+                    console.log('No se encontró usuario con el código de referencia:', referralCode);
+                }
+            } catch (error) {
+                console.error('Error procesando referencia:', error);
+            }
+        }
+
+        // Función para actualizar comisiones cuando un referido recarga
+        async function updateReferralCommissions(userEmail, rechargeAmount) {
+            try {
+                // Obtener información del usuario que recargó
+                const userDoc = await db.collection('users').doc(userEmail).get();
+                if (!userDoc.exists) return;
                 
-                startQuantificationTimer();
-                quantifyingAnimation.style.display = 'block';
+                const userData = userDoc.data();
                 
-                showNotification(`¡Cuantificación iniciada! Tu saldo de $${amount.toFixed(2)} USDT se duplicará en 24 horas.`);
-            } else {
-                alert('Error al iniciar cuantificación');
+                // Verificar si fue referido por alguien
+                if (userData.referredBy) {
+                    const referrerEmail = userData.referredBy;
+                    const referrerDoc = await db.collection('users').doc(referrerEmail).get();
+                    
+                    if (referrerDoc.exists) {
+                        const referrerData = referrerDoc.data();
+                        const commission = rechargeAmount * 0.10; // 10% de comisión
+                        
+                        // Actualizar la lista de referidos del referrer
+                        let updatedReferrals = referrerData.referrals || [];
+                        updatedReferrals = updatedReferrals.map(ref => {
+                            if (ref.email === userEmail) {
+                                return {
+                                    ...ref,
+                                    rechargeAmount: rechargeAmount,
+                                    hasRecharged: true,
+                                    commission: commission,
+                                    rechargeDate: new Date().toISOString()
+                                };
+                            }
+                            return ref;
+                        });
+                        
+                        // Sumar la comisión al saldo disponible del referrer
+                        const newAvailableBalance = (referrerData.availableBalance || 0) + commission;
+                        const newTotalCommissions = (referrerData.totalCommissions || 0) + commission;
+                        
+                        await db.collection('users').doc(referrerEmail).update({
+                            referrals: updatedReferrals,
+                            availableBalance: newAvailableBalance,
+                            totalCommissions: newTotalCommissions,
+                            lastUpdate: new Date().toISOString()
+                        });
+                        
+                        console.log(`Comisión de $${commission} agregada a ${referrerEmail} por recarga de ${userEmail}`);
+                        
+                        // Mostrar notificación al referrer si está conectado
+                        if (currentUser && currentUser.email === referrerEmail) {
+                            showNotification(`¡Recibiste $${commission.toFixed(2)} de comisión por la recarga de ${userEmail}!`);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error actualizando comisiones:', error);
             }
         }
 
-        // Cargar y restaurar estado de cuantificación
-        async function loadQuantificationState() {
-            if (!currentUser || !currentUser.quantifying) return;
-            
-            const state = await getQuantificationState(currentUser.email);
-            if (state && state.active) {
-                // Restaurar temporizador
-                startQuantificationTimer();
-                quantifyingAnimation.style.display = 'block';
-            }
-        }
-
-        // Iniciar temporizador de cuantificación
-        function startQuantificationTimer() {
-            updateCountdown();
-            updateQuantifyProgress();
-            
-            if (quantifyTimer) {
-                clearInterval(quantifyTimer);
-            }
-            
-            quantifyTimer = setInterval(() => {
-                updateCountdown();
-                updateQuantifyProgress();
-            }, 1000);
-        }
-
-        // Actualizar cuenta regresiva
-        async function updateCountdown() {
-            if (!currentUser || !currentUser.quantifying) {
-                countdownTimer.textContent = '24:00:00';
-                return;
-            }
-            
-            const state = await getQuantificationState(currentUser.email);
-            if (!state || !state.active) return;
-            
-            const now = new Date().getTime();
-            const remaining = state.quantifyEndTime - now;
-            
-            if (remaining <= 0) {
-                completeQuantification();
-                return;
-            }
-            
-            const hours = Math.floor(remaining / (1000 * 60 * 60));
-            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-            
-            countdownTimer.textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        // Completar cuantificación
-        async function completeQuantification() {
+        // Función para forzar actualización de referidos
+        async function refreshReferrals() {
             if (!currentUser) return;
             
-            const amount = currentUser.quantifyAmount * 2; // Duplicar el saldo
-            
-            const success = await updateUserInFirebase(currentUser.email, {
-                quantifyingBalance: (currentUser.quantifyingBalance || 0) + amount,
-                quantifyAmount: 0,
-                quantifying: false
-            });
-            
-            if (success) {
-                // Limpiar estado de cuantificación
-                await saveQuantificationState(currentUser.email, {
-                    active: false
-                });
-                
-                // Actualizar usuario local
-                currentUser.quantifyingBalance += amount;
-                currentUser.quantifyAmount = 0;
-                currentUser.quantifying = false;
-                
-                if (quantifyTimer) {
-                    clearInterval(quantifyTimer);
+            try {
+                console.log('Actualizando lista de referidos...');
+                const updatedUser = await getUserFromFirebase(currentUser.email);
+                if (updatedUser) {
+                    currentUser = updatedUser;
+                    updateUI();
+                    showNotification('Lista de referidos actualizada');
                 }
-                
-                updateUI();
-                showNotification('¡Cuantificación completada! Tu saldo se ha duplicado.');
-                
-                if (quantifyScreen.classList.contains('active')) {
-                    quantifyScreen.classList.remove('active');
-                    mainScreen.classList.add('active');
-                }
+            } catch (error) {
+                console.error('Error actualizando referidos:', error);
+            }
+        }
+
+        // Iniciar listener en tiempo real para el usuario actual
+        function startUserListener() {
+            if (userListener) {
+                userListener(); // Detener listener anterior
+            }
+            
+            if (currentUser) {
+                userListener = db.collection('users').doc(currentUser.email)
+                    .onSnapshot((doc) => {
+                        if (doc.exists) {
+                            const updatedUser = { id: doc.id, ...doc.data() };
+                            console.log('Usuario actualizado en tiempo real:', updatedUser);
+                            
+                            // Detectar nuevos referidos
+                            if (currentUser.referrals && updatedUser.referrals) {
+                                if (updatedUser.referrals.length > currentUser.referrals.length) {
+                                    const newRefs = updatedUser.referrals.length - currentUser.referrals.length;
+                                    showNotification(`¡Tienes ${newRefs} nuevo(s) referido(s)!`);
+                                }
+                            }
+                            
+                            currentUser = updatedUser;
+                            updateUI();
+                        }
+                    }, (error) => {
+                        console.error('Error en listener de usuario:', error);
+                    });
             }
         }
 
@@ -1469,6 +1503,7 @@
         const referralsBtn = document.getElementById('referralsBtn');
         const quantifyBtn = document.getElementById('quantifyBtn');
         const logoutBtn = document.getElementById('logoutBtn');
+        const refreshReferralsBtn = document.getElementById('refreshReferralsBtn');
         
         const backFromRechargeBtn = document.getElementById('backFromRechargeBtn');
         const backFromWithdrawBtn = document.getElementById('backFromWithdrawBtn');
@@ -1493,6 +1528,8 @@
         const userReferralCode = document.getElementById('userReferralCode');
         const userReferralLink = document.getElementById('userReferralLink');
         const withdrawMessage = document.getElementById('withdrawMessage');
+        const commissionsCard = document.getElementById('commissionsCard');
+        const totalCommissions = document.getElementById('totalCommissions');
 
         // Elementos Admin
         const adminAccessBtn = document.getElementById('adminAccessBtn');
@@ -1502,143 +1539,329 @@
         const adminTabs = document.querySelectorAll('.admin-tab');
         const adminContents = document.querySelectorAll('.admin-content');
 
-        // CORRECCIÓN: Navegación entre formularios de login y registro
-        // Mostrar formulario de login (desde registro)
-        showLogin.addEventListener('click', () => {
-            authContainer.classList.remove('active');
-            clearMessages();
-        });
+        // Inicializar event listeners
+        function initEventListeners() {
+            // Navegación entre formularios
+            showLogin.addEventListener('click', () => {
+                authContainer.classList.remove('active');
+                clearMessages();
+            });
 
-        // Mostrar formulario de registro (desde login)
-        showRegister.addEventListener('click', () => {
-            authContainer.classList.add('active');
-            clearMessages();
-        });
+            showRegister.addEventListener('click', () => {
+                authContainer.classList.add('active');
+                clearMessages();
+            });
 
-        // Manejar envío del formulario de registro
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const referralCode = document.getElementById('referralCode').value;
-            
-            if (!email || !password) {
-                showMessage(registerMessage, 'Por favor, completa todos los campos obligatorios.', 'error');
-                return;
-            }
-            
-            // Verificar si el usuario ya existe
-            const existingUser = await getUserFromFirebase(email);
-            if (existingUser) {
-                showMessage(registerMessage, 'Este correo ya está registrado.', 'error');
-                return;
-            }
-            
-            // Crear nuevo usuario
-            const newUser = {
-                email: email,
-                password: password, // En producción, esto debería ser un hash
-                availableBalance: 0,
-                quantifyingBalance: 0,
-                referralCode: 'CHRISTMAS' + Math.floor(1000 + Math.random() * 9000),
-                referrals: [],
-                quantifying: false,
-                quantifyAmount: 0,
-                isAdmin: false
-            };
-            
-            // Guardar en Firebase
-            const success = await saveUserToFirebase(newUser);
-            
-            if (success) {
-                currentUser = newUser;
-                showMessage(registerMessage, '¡Registro exitoso! Ahora puedes iniciar sesión.', 'success');
+            // Formulario de registro
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
                 
-                // Limpiar formulario
-                registerForm.reset();
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const referralCode = document.getElementById('referralCode').value;
                 
-                // Cambiar al formulario de login después de un breve retraso
-                setTimeout(() => {
-                    authContainer.classList.remove('active');
-                    showMessage(loginMessage, 'Tu cuenta ha sido creada. Por favor, inicia sesión.', 'success');
-                }, 1500);
-            } else {
-                showMessage(registerMessage, 'Error al crear la cuenta. Intenta nuevamente.', 'error');
-            }
-        });
-
-        // Manejar envío del formulario de login
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!email || !password) {
-                showMessage(loginMessage, 'Por favor, ingresa tu correo y contraseña.', 'error');
-                return;
-            }
-            
-            // Obtener usuario de Firebase
-            const user = await getUserFromFirebase(email);
-            
-            if (!user) {
-                showMessage(loginMessage, 'Usuario no encontrado.', 'error');
-                return;
-            }
-            
-            if (user.password !== password) { // En producción, comparar hashes
-                showMessage(loginMessage, 'Contraseña incorrecta.', 'error');
-                return;
-            }
-            
-            // Login exitoso
-            currentUser = user;
-            showMessage(loginMessage, '¡Inicio de sesión exitoso!', 'success');
-            
-            // Cargar estado de cuantificación si está activa
-            await loadQuantificationState();
-            
-            // Cambiar a pantalla principal después de un breve retraso
-            setTimeout(() => {
-                authContainer.style.display = 'none';
-                mainScreen.classList.add('active');
-                loginForm.reset();
-                updateUI();
-                showNotification('¡Bienvenido a Christmas!');
-                
-                // MOSTRAR BOTÓN ADMIN cuando el usuario esté logueado
-                adminAccessContainer.style.display = 'block';
-            }, 1000);
-        });
-
-        // NUEVO: Función para cerrar sesión
-        logoutBtn.addEventListener('click', () => {
-            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-                // Limpiar datos de usuario
-                currentUser = null;
-                
-                // Detener temporizador de cuantificación si está activo
-                if (quantifyTimer) {
-                    clearInterval(quantifyTimer);
-                    quantifyTimer = null;
+                if (!email || !password) {
+                    showMessage(registerMessage, 'Por favor, completa todos los campos obligatorios.', 'error');
+                    return;
                 }
                 
-                // Ocultar botón admin
-                adminAccessContainer.style.display = 'none';
+                // Verificar si el usuario ya existe
+                const existingUser = await getUserFromFirebase(email);
+                if (existingUser) {
+                    showMessage(registerMessage, 'Este correo ya está registrado.', 'error');
+                    return;
+                }
                 
-                // Volver a pantalla de login
+                // Crear nuevo usuario
+                const newUser = {
+                    email: email,
+                    password: password,
+                    availableBalance: 0,
+                    quantifyingBalance: 0,
+                    referralCode: 'CHRISTMAS' + Math.floor(1000 + Math.random() * 9000),
+                    referrals: [],
+                    quantifying: false,
+                    quantifyAmount: 0,
+                    quantifyStartTime: null,
+                    totalCommissions: 0,
+                    isAdmin: false
+                };
+                
+                // Guardar en Firebase
+                const success = await saveUserToFirebase(newUser);
+                
+                if (success) {
+                    // PROCESAR REFERENCIA SI EXISTE - USANDO LA VERSIÓN CORREGIDA
+                    if (referralCode) {
+                        await processReferral(email, referralCode);
+                    }
+                    
+                    currentUser = newUser;
+                    showMessage(registerMessage, '¡Registro exitoso! Ahora puedes iniciar sesión.', 'success');
+                    
+                    // Limpiar formulario
+                    registerForm.reset();
+                    
+                    // Cambiar al formulario de login después de un breve retraso
+                    setTimeout(() => {
+                        authContainer.classList.remove('active');
+                        showMessage(loginMessage, 'Tu cuenta ha sido creada. Por favor, inicia sesión.', 'success');
+                    }, 1500);
+                } else {
+                    showMessage(registerMessage, 'Error al crear la cuenta. Intenta nuevamente.', 'error');
+                }
+            });
+
+            // Formulario de login
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                if (!email || !password) {
+                    showMessage(loginMessage, 'Por favor, ingresa tu correo y contraseña.', 'error');
+                    return;
+                }
+                
+                // Obtener usuario de Firebase
+                const user = await getUserFromFirebase(email);
+                
+                if (!user) {
+                    showMessage(loginMessage, 'Usuario no encontrado.', 'error');
+                    return;
+                }
+                
+                if (user.password !== password) {
+                    showMessage(loginMessage, 'Contraseña incorrecta.', 'error');
+                    return;
+                }
+                
+                // Login exitoso
+                currentUser = user;
+                showMessage(loginMessage, '¡Inicio de sesión exitoso!', 'success');
+                
+                // Iniciar listener en tiempo real
+                startUserListener();
+                
+                // Cargar estado de cuantificación si está activa
+                if (currentUser.quantifying) {
+                    startQuantificationTimer();
+                    quantifyingAnimation.style.display = 'block';
+                }
+                
+                // Cambiar a pantalla principal después de un breve retraso
+                setTimeout(() => {
+                    authContainer.style.display = 'none';
+                    mainScreen.classList.add('active');
+                    loginForm.reset();
+                    updateUI();
+                    showNotification('¡Bienvenido a Christmas!');
+                    
+                    // Mostrar botón admin cuando el usuario esté logueado
+                    adminAccessContainer.style.display = 'block';
+                }, 1000);
+            });
+
+            // Cerrar sesión
+            logoutBtn.addEventListener('click', () => {
+                if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                    // Limpiar datos de usuario
+                    currentUser = null;
+                    
+                    // Detener temporizador de cuantificación si está activo
+                    if (quantifyTimer) {
+                        clearInterval(quantifyTimer);
+                        quantifyTimer = null;
+                    }
+                    
+                    // Detener listener
+                    if (userListener) {
+                        userListener();
+                        userListener = null;
+                    }
+                    
+                    // Ocultar botón admin
+                    adminAccessContainer.style.display = 'none';
+                    
+                    // Volver a pantalla de login
+                    mainScreen.classList.remove('active');
+                    authContainer.style.display = 'block';
+                    authContainer.classList.remove('active');
+                    
+                    // Limpiar mensajes
+                    clearMessages();
+                    
+                    showNotification('Sesión cerrada correctamente');
+                }
+            });
+
+            // Navegación entre pantallas
+            rechargeBtn.addEventListener('click', () => {
                 mainScreen.classList.remove('active');
-                authContainer.style.display = 'block';
-                authContainer.classList.remove('active'); // Mostrar login por defecto
+                rechargeScreen.classList.add('active');
+            });
+
+            withdrawBtn.addEventListener('click', () => {
+                mainScreen.classList.remove('active');
+                withdrawScreen.classList.add('active');
+                withdrawMessage.style.display = 'none';
+            });
+
+            referralsBtn.addEventListener('click', async () => {
+                // Forzar actualización al abrir la pantalla
+                await refreshReferrals();
+                mainScreen.classList.remove('active');
+                referralsScreen.classList.add('active');
+            });
+
+            quantifyBtn.addEventListener('click', () => {
+                mainScreen.classList.remove('active');
+                quantifyScreen.classList.add('active');
                 
-                // Limpiar mensajes
-                clearMessages();
+                // Si hay una cuantificación en curso, actualizar el temporizador
+                if (currentUser.quantifying) {
+                    updateCountdown();
+                } else {
+                    quantifyingAnimation.style.display = 'none';
+                }
+            });
+
+            // Botones de volver
+            backFromRechargeBtn.addEventListener('click', () => {
+                rechargeScreen.classList.remove('active');
+                mainScreen.classList.add('active');
+            });
+
+            backFromWithdrawBtn.addEventListener('click', () => {
+                withdrawScreen.classList.remove('active');
+                mainScreen.classList.add('active');
+            });
+
+            backFromReferralsBtn.addEventListener('click', () => {
+                referralsScreen.classList.remove('active');
+                mainScreen.classList.add('active');
+            });
+
+            backFromQuantifyBtn.addEventListener('click', () => {
+                quantifyScreen.classList.remove('active');
+                mainScreen.classList.add('active');
+            });
+
+            // Validar recarga
+            validateRechargeBtn.addEventListener('click', async () => {
+                const amount = parseFloat(document.getElementById('rechargeAmount').value);
                 
-                showNotification('Sesión cerrada correctamente');
-            }
-        });
+                if (!amount || amount < 10) {
+                    alert('El monto mínimo de recarga es 10 USDT');
+                    return;
+                }
+                
+                // Crear solicitud de recarga en Firebase
+                const success = await createRechargeRequest(
+                    currentUser.email, 
+                    amount, 
+                    document.getElementById('walletAddress').textContent
+                );
+                
+                if (success) {
+                    showNotification('Solicitud de recarga enviada. Espera aprobación del admin.');
+                    document.getElementById('rechargeAmount').value = '';
+                    rechargeScreen.classList.remove('active');
+                    mainScreen.classList.add('active');
+                } else {
+                    alert('Error al enviar solicitud de recarga');
+                }
+            });
+
+            // Confirmar retiro - CON VALIDACIÓN CORREGIDA PARA COMISIONES
+            confirmWithdrawBtn.addEventListener('click', async () => {
+                const amount = parseFloat(document.getElementById('withdrawAmount').value);
+                const wallet = document.getElementById('withdrawWallet').value;
+                const type = document.getElementById('withdrawType').value;
+                
+                // Validación mínima de retiro
+                if (!amount || amount < 1) {
+                    showMessage(withdrawMessage, 'El monto mínimo de retiro es 1 USDT.', 'error');
+                    return;
+                }
+                
+                if (!wallet) {
+                    showMessage(withdrawMessage, 'Ingresa una dirección de wallet válida.', 'error');
+                    return;
+                }
+                
+                // Verificar saldo según el tipo
+                if (type === 'available' && amount > currentUser.availableBalance) {
+                    showMessage(withdrawMessage, 'No tienes suficiente saldo disponible para este retiro.', 'error');
+                    return;
+                }
+                
+                if (type === 'quantifying' && amount > currentUser.quantifyingBalance) {
+                    showMessage(withdrawMessage, 'No tienes suficiente saldo de cuantificación para este retiro.', 'error');
+                    return;
+                }
+                
+                // VALIDACIÓN ESPECÍFICA PARA COMISIONES
+                if (type === 'commissions') {
+                    if (amount < 1) {
+                        showMessage(withdrawMessage, 'El monto mínimo de retiro para comisiones es 1 USDT.', 'error');
+                        return;
+                    }
+                    if (amount > currentUser.totalCommissions) {
+                        showMessage(withdrawMessage, 'No tienes suficientes comisiones para este retiro.', 'error');
+                        return;
+                    }
+                }
+                
+                // Crear solicitud de retiro en Firebase
+                const success = await createWithdrawalRequest(
+                    currentUser.email,
+                    amount,
+                    wallet,
+                    type
+                );
+                
+                if (success) {
+                    showMessage(withdrawMessage, 'Solicitud de retiro enviada. Espera aprobación del admin.', 'success');
+                    
+                    document.getElementById('withdrawAmount').value = '';
+                    document.getElementById('withdrawWallet').value = '';
+                    
+                    setTimeout(() => {
+                        withdrawScreen.classList.remove('active');
+                        mainScreen.classList.add('active');
+                    }, 2000);
+                } else {
+                    showMessage(withdrawMessage, 'Error al enviar solicitud de retiro.', 'error');
+                }
+            });
+
+            // Iniciar cuantificación
+            startQuantifyBtn.addEventListener('click', startQuantification);
+
+            // Actualizar referidos
+            refreshReferralsBtn.addEventListener('click', refreshReferrals);
+
+            // Copiar al portapapeles
+            copyWalletBtn.addEventListener('click', () => {
+                const walletAddress = document.getElementById('walletAddress').textContent;
+                copyToClipboard(walletAddress, 'Wallet copiada al portapapeles');
+            });
+
+            copyReferralBtn.addEventListener('click', () => {
+                const referralCode = userReferralCode.textContent;
+                copyToClipboard(referralCode, 'Código de referencia copiado');
+            });
+
+            copyReferralLinkBtn.addEventListener('click', () => {
+                const referralLink = userReferralLink.textContent;
+                copyToClipboard(referralLink, 'Enlace de referencia copiado');
+            });
+
+            // Sistema Admin
+            initAdminSystem();
+        }
 
         // Actualizar la interfaz de usuario
         function updateUI() {
@@ -1651,29 +1874,208 @@
             quantifyingBalance.textContent = `$${(currentUser.quantifyingBalance || 0).toFixed(2)} USDT`;
             quantifyAmount.textContent = `$${(currentUser.quantifyAmount || 0).toFixed(2)} USDT`;
             userReferralCode.textContent = currentUser.referralCode;
-            userReferralLink.textContent = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
+            totalCommissions.textContent = `$${(currentUser.totalCommissions || 0).toFixed(2)} USDT`;
+            
+            // Mostrar u ocultar tarjeta de comisiones
+            if (currentUser.totalCommissions > 0) {
+                commissionsCard.style.display = 'block';
+            } else {
+                commissionsCard.style.display = 'none';
+            }
+            
+            // CORRECCIÓN: Usar la URL EXACTA de la plataforma
+            userReferralLink.textContent = `https://chrismassplataform-wq.github.io/Chrismass/?ref=${currentUser.referralCode}`;
             
             // Actualizar lista de referidos
-            referralsList.innerHTML = '';
-            if (!currentUser.referrals || currentUser.referrals.length === 0) {
-                referralsList.innerHTML = '<p style="text-align: center; padding: 20px; color: #777;">Aún no tienes referidos</p>';
-            } else {
-                currentUser.referrals.forEach(ref => {
-                    const item = document.createElement('div');
-                    item.className = 'referral-item';
-                    item.innerHTML = `
-                        <span>${ref.email}</span>
-                        <span>$${ref.rechargeAmount.toFixed(2)}</span>
-                    `;
-                    referralsList.appendChild(item);
-                });
-            }
+            updateReferralsList();
             
             updateQuantifyProgress();
         }
 
-        // Actualizar barra de progreso de cuantificación
-        async function updateQuantifyProgress() {
+        // Actualizar lista de referidos
+        function updateReferralsList() {
+            referralsList.innerHTML = '';
+            if (!currentUser.referrals || currentUser.referrals.length === 0) {
+                referralsList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #777;">
+                        <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        <p>Aún no tienes referidos</p>
+                        <small>Comparte tu enlace único para ganar comisiones</small>
+                    </div>
+                `;
+            } else {
+                currentUser.referrals.forEach((ref, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'referral-item';
+                    item.innerHTML = `
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                <div style="background: var(--color-naranja); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 10px;">
+                                    ${index + 1}
+                                </div>
+                                <strong>${ref.email}</strong>
+                            </div>
+                            <small style="color: #666;">
+                                Registrado: ${new Date(ref.registrationDate).toLocaleDateString()} 
+                                ${new Date(ref.registrationDate).toLocaleTimeString()}
+                            </small>
+                        </div>
+                        <div style="text-align: right; min-width: 120px;">
+                            <div style="font-weight: bold; color: ${ref.hasRecharged ? 'var(--color-verde-navidad)' : '#666'}">
+                                $${ref.rechargeAmount ? ref.rechargeAmount.toFixed(2) : '0.00'}
+                            </div>
+                            <div style="color: var(--color-oro); font-weight: bold; font-size: 0.9rem;">
+                                +$${ref.commission ? ref.commission.toFixed(2) : '0.00'}
+                            </div>
+                            <div style="font-size: 0.7em; color: ${ref.hasRecharged ? 'var(--color-verde-navidad)' : '#FFA500'};">
+                                ${ref.hasRecharged ? '✅ Con recarga' : '⏳ Esperando recarga'}
+                            </div>
+                        </div>
+                    `;
+                    referralsList.appendChild(item);
+                });
+                
+                // Agregar resumen
+                const totalReferrals = currentUser.referrals.length;
+                const referralsWithRecharge = currentUser.referrals.filter(ref => ref.hasRecharged).length;
+                const totalCommissionsEarned = currentUser.referrals.reduce((sum, ref) => sum + (ref.commission || 0), 0);
+                
+                const summary = document.createElement('div');
+                summary.className = 'referral-item';
+                summary.style.background = 'rgba(255, 140, 66, 0.1)';
+                summary.style.borderRadius = '10px';
+                summary.style.marginTop = '10px';
+                summary.innerHTML = `
+                    <div style="flex: 1;">
+                        <strong>Resumen Total</strong>
+                    </div>
+                    <div style="text-align: right; min-width: 120px;">
+                        <div>${totalReferrals} referidos</div>
+                        <div>${referralsWithRecharge} con recarga</div>
+                        <div style="color: var(--color-oro); font-weight: bold;">
+                            +$${totalCommissionsEarned.toFixed(2)}
+                        </div>
+                    </div>
+                `;
+                referralsList.appendChild(summary);
+            }
+        }
+
+        // ==================== SISTEMA DE CUANTIFICACIÓN CORREGIDO ====================
+
+        // Iniciar cuantificación (SISTEMA CORREGIDO)
+        async function startQuantification() {
+            if (currentUser.quantifying) {
+                alert('Ya tienes una cuantificación en curso.');
+                return;
+            }
+            
+            if (currentUser.availableBalance <= 0) {
+                alert('No tienes saldo disponible para cuantificar.');
+                return;
+            }
+            
+            const amount = currentUser.availableBalance;
+            
+            // Actualizar usuario
+            const success = await updateUserInFirebase(currentUser.email, {
+                availableBalance: 0,
+                quantifyingBalance: amount,
+                quantifying: true,
+                quantifyStartTime: new Date().getTime()
+            });
+            
+            if (success) {
+                currentUser.availableBalance = 0;
+                currentUser.quantifyingBalance = amount;
+                currentUser.quantifying = true;
+                currentUser.quantifyStartTime = new Date().getTime();
+                
+                startQuantificationTimer();
+                quantifyingAnimation.style.display = 'block';
+                
+                showNotification(`¡Cuantificación iniciada! Tu saldo de $${amount.toFixed(2)} USDT se duplicará en 24 horas.`);
+            } else {
+                alert('Error al iniciar cuantificación');
+            }
+        }
+
+        // Iniciar temporizador de cuantificación (SISTEMA CORREGIDO)
+        function startQuantificationTimer() {
+            updateCountdown();
+            updateQuantifyProgress();
+            
+            if (quantifyTimer) {
+                clearInterval(quantifyTimer);
+            }
+            
+            quantifyTimer = setInterval(() => {
+                updateCountdown();
+                updateQuantifyProgress();
+            }, 1000);
+        }
+
+        // Actualizar cuenta regresiva (SISTEMA CORREGIDO - COMPLETA AUTOMÁTICAMENTE)
+        function updateCountdown() {
+            if (!currentUser || !currentUser.quantifying) {
+                countdownTimer.textContent = '24:00:00';
+                return;
+            }
+            
+            const now = new Date().getTime();
+            const remaining = (24 * 60 * 60 * 1000) - (now - currentUser.quantifyStartTime);
+            
+            if (remaining <= 0) {
+                // COMPLETAR AUTOMÁTICAMENTE CUANDO LLEGUE A CERO
+                completeQuantification();
+                return;
+            }
+            
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+            
+            countdownTimer.textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Completar cuantificación (SISTEMA CORREGIDO - MEJOR FEEDBACK)
+        async function completeQuantification() {
+            if (!currentUser) return;
+            
+            const originalAmount = currentUser.quantifyingBalance;
+            const doubledAmount = originalAmount * 2; // Duplicar el saldo
+            
+            const success = await updateUserInFirebase(currentUser.email, {
+                availableBalance: (currentUser.availableBalance || 0) + doubledAmount,
+                quantifyingBalance: 0,
+                quantifying: false,
+                quantifyStartTime: null
+            });
+            
+            if (success) {
+                currentUser.availableBalance += doubledAmount;
+                currentUser.quantifyingBalance = 0;
+                currentUser.quantifying = false;
+                currentUser.quantifyStartTime = null;
+                
+                if (quantifyTimer) {
+                    clearInterval(quantifyTimer);
+                    quantifyTimer = null;
+                }
+                
+                updateUI();
+                showNotification(`¡Cuantificación completada! $${originalAmount.toFixed(2)} USDT se convirtieron en $${doubledAmount.toFixed(2)} USDT`);
+                
+                if (quantifyScreen.classList.contains('active')) {
+                    quantifyScreen.classList.remove('active');
+                    mainScreen.classList.add('active');
+                }
+            }
+        }
+
+        // Actualizar barra de progreso de cuantificación (SISTEMA CORREGIDO)
+        function updateQuantifyProgress() {
             if (!currentUser || !currentUser.quantifying) {
                 quantifyProgress.style.width = '0%';
                 quantifyStatus.textContent = 'No hay cuantificación activa';
@@ -1681,13 +2083,9 @@
                 return;
             }
             
-            const state = await getQuantificationState(currentUser.email);
-            if (!state || !state.active) return;
-            
             const now = new Date().getTime();
-            const totalTime = state.quantifyEndTime - state.quantifyStartTime;
-            const elapsed = now - state.quantifyStartTime;
-            const progress = Math.min(100, (elapsed / totalTime) * 100);
+            const elapsed = now - currentUser.quantifyStartTime;
+            const progress = Math.min(100, (elapsed / (24 * 60 * 60 * 1000)) * 100);
             
             quantifyProgress.style.width = `${progress}%`;
             
@@ -1695,196 +2093,66 @@
                 quantifyStatus.textContent = '¡Cuantificación completada!';
                 quantifyingAnimation.innerHTML = '<i class="fas fa-check-circle"></i> ¡Completado!';
             } else {
-                quantifyStatus.textContent = 'Cuantificación en progreso...';
+                const remaining = 24 * 60 * 60 * 1000 - elapsed;
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                quantifyStatus.textContent = `Completando... ${hours}h ${minutes}m restantes`;
                 quantifyingAnimation.style.display = 'block';
-            }
-            
-            // Actualizar saldo en cuantificación en tiempo real
-            if (currentUser.quantifying) {
-                const currentQuantifying = currentUser.quantifyAmount + (currentUser.quantifyAmount * (progress / 100));
-                quantifyingBalance.textContent = `$${currentQuantifying.toFixed(2)} USDT`;
             }
         }
 
-        // Navegación entre pantallas
-        rechargeBtn.addEventListener('click', () => {
-            mainScreen.classList.remove('active');
-            rechargeScreen.classList.add('active');
-        });
-
-        withdrawBtn.addEventListener('click', () => {
-            mainScreen.classList.remove('active');
-            withdrawScreen.classList.add('active');
-            withdrawMessage.style.display = 'none';
-        });
-
-        referralsBtn.addEventListener('click', () => {
-            mainScreen.classList.remove('active');
-            referralsScreen.classList.add('active');
-        });
-
-        quantifyBtn.addEventListener('click', () => {
-            mainScreen.classList.remove('active');
-            quantifyScreen.classList.add('active');
-            
-            // Si hay una cuantificación en curso, actualizar el temporizador
-            if (currentUser.quantifying) {
-                updateCountdown();
-            } else {
-                quantifyingAnimation.style.display = 'none';
-            }
-        });
-
-        // Botones de volver
-        backFromRechargeBtn.addEventListener('click', () => {
-            rechargeScreen.classList.remove('active');
-            mainScreen.classList.add('active');
-        });
-
-        backFromWithdrawBtn.addEventListener('click', () => {
-            withdrawScreen.classList.remove('active');
-            mainScreen.classList.add('active');
-        });
-
-        backFromReferralsBtn.addEventListener('click', () => {
-            referralsScreen.classList.remove('active');
-            mainScreen.classList.add('active');
-        });
-
-        backFromQuantifyBtn.addEventListener('click', () => {
-            quantifyScreen.classList.remove('active');
-            mainScreen.classList.add('active');
-        });
-
-        // Validar recarga
-        validateRechargeBtn.addEventListener('click', async () => {
-            const amount = parseFloat(document.getElementById('rechargeAmount').value);
-            
-            if (!amount || amount < 10) {
-                alert('El monto mínimo de recarga es 10 USDT');
-                return;
-            }
-            
-            // Crear solicitud de recarga en Firebase
-            const success = await createRechargeRequest(
-                currentUser.email, 
-                amount, 
-                document.getElementById('walletAddress').textContent
-            );
-            
-            if (success) {
-                showNotification('Solicitud de recarga enviada. Espera aprobación del admin.');
-                document.getElementById('rechargeAmount').value = '';
-                rechargeScreen.classList.remove('active');
-                mainScreen.classList.add('active');
-            } else {
-                alert('Error al enviar solicitud de recarga');
-            }
-        });
-
-        // Confirmar retiro
-        confirmWithdrawBtn.addEventListener('click', async () => {
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const wallet = document.getElementById('withdrawWallet').value;
-            const type = document.getElementById('withdrawType').value;
-            
-            if (!amount || amount <= 0) {
-                showMessage(withdrawMessage, 'Ingresa un monto válido para retirar.', 'error');
-                return;
-            }
-            
-            if (!wallet) {
-                showMessage(withdrawMessage, 'Ingresa una dirección de wallet válida.', 'error');
-                return;
-            }
-            
-            // Verificar saldo según el tipo
-            if (type === 'available' && amount > currentUser.availableBalance) {
-                showMessage(withdrawMessage, 'No tienes suficiente saldo disponible para este retiro.', 'error');
-                return;
-            }
-            
-            if (type === 'quantifying' && amount > currentUser.quantifyingBalance) {
-                showMessage(withdrawMessage, 'No tienes suficiente saldo de cuantificación para este retiro.', 'error');
-                return;
-            }
-            
-            // Crear solicitud de retiro en Firebase
-            const success = await createWithdrawalRequest(
-                currentUser.email,
-                amount,
-                wallet,
-                type
-            );
-            
-            if (success) {
-                showMessage(withdrawMessage, 'Solicitud de retiro enviada. Espera aprobación del admin.', 'success');
-                
-                document.getElementById('withdrawAmount').value = '';
-                document.getElementById('withdrawWallet').value = '';
-                
-                setTimeout(() => {
-                    withdrawScreen.classList.remove('active');
-                    mainScreen.classList.add('active');
-                }, 2000);
-            } else {
-                showMessage(withdrawMessage, 'Error al enviar solicitud de retiro.', 'error');
-            }
-        });
-
-        // Iniciar cuantificación
-        startQuantifyBtn.addEventListener('click', startQuantification);
-
         // ==================== SISTEMA DE ADMIN ====================
 
-        // Botón de acceso admin
-        adminAccessBtn.addEventListener('click', () => {
-            mainScreen.classList.remove('active');
-            adminLoginScreen.classList.add('active');
-        });
-
-        // Login Admin
-        adminLoginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const password = document.getElementById('adminPassword').value;
-            
-            if (password === ADMIN_PASSWORD) {
-                currentUser.isAdmin = true;
-                adminLoginScreen.classList.remove('active');
-                adminScreen.classList.add('active');
-                loadAdminData();
-                showNotification('Acceso admin concedido');
-            } else {
-                alert('Contraseña incorrecta');
-            }
-        });
-
-        // Navegación entre tabs admin
-        adminTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                
-                // Remover active de todos
-                adminTabs.forEach(t => t.classList.remove('active'));
-                adminContents.forEach(c => c.classList.remove('active'));
-                
-                // Activar tab seleccionado
-                tab.classList.add('active');
-                document.getElementById(`${tabId}Content`).classList.add('active');
+        function initAdminSystem() {
+            // Botón de acceso admin
+            adminAccessBtn.addEventListener('click', () => {
+                mainScreen.classList.remove('active');
+                adminLoginScreen.classList.add('active');
             });
-        });
 
-        // Volver desde admin
-        backFromAdminBtn.addEventListener('click', () => {
-            adminScreen.classList.remove('active');
-            mainScreen.classList.add('active');
-            currentUser.isAdmin = false;
-        });
+            // Login Admin
+            adminLoginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const password = document.getElementById('adminPassword').value;
+                
+                if (password === ADMIN_PASSWORD) {
+                    currentUser.isAdmin = true;
+                    adminLoginScreen.classList.remove('active');
+                    adminScreen.classList.add('active');
+                    loadAdminData();
+                    showNotification('Acceso admin concedido');
+                } else {
+                    alert('Contraseña incorrecta');
+                }
+            });
 
-        backFromAdminLoginBtn.addEventListener('click', () => {
-            adminLoginScreen.classList.remove('active');
-            mainScreen.classList.add('active');
-        });
+            // Navegación entre tabs admin
+            adminTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Remover active de todos
+                    adminTabs.forEach(t => t.classList.remove('active'));
+                    adminContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Activar tab seleccionado
+                    tab.classList.add('active');
+                    document.getElementById(`${tabId}Content`).classList.add('active');
+                });
+            });
+
+            // Volver desde admin
+            backFromAdminBtn.addEventListener('click', () => {
+                adminScreen.classList.remove('active');
+                mainScreen.classList.add('active');
+                currentUser.isAdmin = false;
+            });
+
+            backFromAdminLoginBtn.addEventListener('click', () => {
+                adminLoginScreen.classList.remove('active');
+                mainScreen.classList.add('active');
+            });
+        }
 
         // Cargar datos para el panel admin
         async function loadAdminData() {
@@ -1935,6 +2203,7 @@
                     <td>$${user.availableBalance || 0}</td>
                     <td>$${user.quantifyingBalance || 0}</td>
                     <td>${user.referrals ? user.referrals.length : 0}</td>
+                    <td>$${user.totalCommissions || 0}</td>
                     <td>${new Date(user.registrationDate).toLocaleDateString()}</td>
                     <td>
                         <button class="btn-sm btn-danger" onclick="deleteUser('${user.id}')">
@@ -2015,7 +2284,7 @@
 
         // ==================== FUNCIONES DE ACCIÓN DEL ADMIN ====================
 
-        // Aprobar recarga
+        // Aprobar recarga (con comisiones)
         async function approveRecharge(requestId, userId, amount) {
             try {
                 // Actualizar estado de la solicitud
@@ -2034,12 +2303,16 @@
                     
                     await userRef.update({
                         availableBalance: newBalance,
+                        totalRecharged: (userData.totalRecharged || 0) + amount,
                         lastUpdate: new Date().toISOString()
                     });
+                    
+                    // ACTUALIZAR COMISIONES PARA EL REFERIDO (si fue referido)
+                    await updateReferralCommissions(userId, amount);
                 }
 
                 showNotification('Recarga aprobada exitosamente');
-                loadAdminData(); // Recargar datos
+                loadAdminData();
 
             } catch (error) {
                 console.error('Error aprobando recarga:', error);
@@ -2088,6 +2361,12 @@
                         const newBalance = (userData.quantifyingBalance || 0) - amount;
                         await userRef.update({
                             quantifyingBalance: Math.max(0, newBalance),
+                            lastUpdate: new Date().toISOString()
+                        });
+                    } else if (type === 'commissions') {
+                        const newCommissions = (userData.totalCommissions || 0) - amount;
+                        await userRef.update({
+                            totalCommissions: Math.max(0, newCommissions),
                             lastUpdate: new Date().toISOString()
                         });
                     }
@@ -2147,24 +2426,6 @@
                 container.appendChild(snowflake);
             }
         }
-
-        // Copiar dirección de wallet
-        copyWalletBtn.addEventListener('click', () => {
-            const walletAddress = document.getElementById('walletAddress').textContent;
-            copyToClipboard(walletAddress, 'Wallet copiada al portapapeles');
-        });
-
-        // Copiar código de referencia
-        copyReferralBtn.addEventListener('click', () => {
-            const referralCode = userReferralCode.textContent;
-            copyToClipboard(referralCode, 'Código de referencia copiado');
-        });
-
-        // Copiar enlace de referencia
-        copyReferralLinkBtn.addEventListener('click', () => {
-            const referralLink = userReferralLink.textContent;
-            copyToClipboard(referralLink, 'Enlace de referencia copiado');
-        });
 
         // Función para copiar al portapapeles
         function copyToClipboard(text, message) {
