@@ -826,7 +826,7 @@
 </head>
 <body>
     <!-- Botón flotante de WhatsApp -->
-    <a href="https://wa.me/1234567890" class="whatsapp-float" target="_blank" id="whatsappBtn">
+    <a href="https://wa.me/+13656663590" class="whatsapp-float" target="_blank" id="whatsappBtn">
         <i class="fab fa-whatsapp"></i>
     </a>
 
@@ -960,7 +960,7 @@
         
         <div class="wallet-address">
             <p><i class="fas fa-wallet"></i> Wallet USDT (BEP20):</p>
-            <p id="walletAddress">0x742d35Cc6634C0532925a3b8D4B5e3B4A5F9D8C2</p>
+            <p id="walletAddress">0x621917958C7ac81190e9f876C23D6B9914f31263</p>
             <button class="copy-btn" id="copyWalletBtn"><i class="fas fa-copy"></i> Copiar</button>
         </div>
         
@@ -1203,7 +1203,7 @@
         const auth = firebase.auth();
 
         // Contraseña maestra del admin
-        const ADMIN_PASSWORD = "admin123";
+        const ADMIN_PASSWORD = "880319";
 
         // Variables globales
         let currentUser = null;
@@ -1362,6 +1362,11 @@
                     });
                     
                     console.log(`Usuario ${newUserEmail} registrado como referido de ${referrerUser.email}`);
+                    
+                    // Mostrar notificación al referidor si está conectado
+                    if (currentUser && currentUser.email === referrerUser.email) {
+                        showNotification(`¡Nuevo referido registrado: ${newUserEmail}!`);
+                    }
                     
                 } else {
                     console.log('No se encontró usuario con el código de referencia:', referralCode);
@@ -2471,6 +2476,13 @@
             loginMessage.style.display = 'none';
             registerMessage.style.display = 'none';
         }
+
+        // Hacer funciones globales para los botones del admin
+        window.approveRecharge = approveRecharge;
+        window.rejectRecharge = rejectRecharge;
+        window.approveWithdrawal = approveWithdrawal;
+        window.rejectWithdrawal = rejectWithdrawal;
+        window.deleteUser = deleteUser;
     </script>
 </body>
 </html>
